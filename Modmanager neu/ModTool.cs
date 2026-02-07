@@ -20,16 +20,17 @@ namespace Modmanager_neu
         private static readonly string modversionfile = "version.txt";
         private static readonly string modspath = Path.Combine(gamepath, modtool,"mods");
         private static readonly string vanillapath = Path.Combine(gamepath, modtool, "vanilla");
-
+        private static readonly string contentsfile = "contents.txt";
+        private static readonly string modlistsfile = "modlist.txt";
         public static string GetCurrentMod()
         {
             Sonstiges.DebugText("Starte Ermittlung des aktuellen Mods...");
             string currentmod; // Kompiliert sauber
             
-            if (!File.Exists(Path.Combine(gamepath,modtool,modversionfile)))
+            if (!Path.Exists(Path.Combine(gamepath, modtool)))
             {
-                Directory.CreateDirectory(Path.Combine(gamepath, modtool, "mods"));
-                Directory.CreateDirectory(Path.Combine(gamepath, modtool, "vanilla"));
+                Directory.CreateDirectory(modspath);
+                Directory.CreateDirectory(vanillapath);
             }
 
             string file = Path.Combine(gamepath, modtool, modversionfile);
@@ -108,6 +109,7 @@ namespace Modmanager_neu
 
             Console.WriteLine(Localization.T("mods.menu.new.mod.description"));
             Console.WriteLine(Localization.T("mods.menu.new.mod.name.prompt"));
+            Console.WriteLine(Localization.T("menu.go.back.q"));
             bool validname = false;
             string? modname = string.Empty;
             List<string> modslist = [];
@@ -165,12 +167,14 @@ namespace Modmanager_neu
 
                 string type = "none";
                 Console.WriteLine(Localization.T("mods.menu.new.mod.path.prompt"));
+                Console.WriteLine(Localization.T("menu.go.back.q"));
                 while (validpath == false)
                 {
                     Console.Write(Localization.T("pointer"));
                     string? inputpath = Console.ReadLine();
                     if (inputpath != null)
                     {
+                        Console.WriteLine();
                         switch (inputpath)
                         {
                             case "Q" or "q":
@@ -216,6 +220,7 @@ namespace Modmanager_neu
                             Sonstiges.Filehelper.Copy(inputpath, modfiles, true, Directory.GetFiles(inputpath, "*.*", SearchOption.AllDirectories),true);
                             Console.WriteLine(Localization.T("mods.menu.new.mod.extract.directory.done"));
                         }
+                        modslist.Add(inputpath);
                         if (Menu.YesOrNoPrompt(Localization.T("mods.menu.new.mod.add.more.mods.question")) == false)
                         {
                             Sonstiges.DebugText("Mods hinzufügen fertig");
@@ -224,74 +229,111 @@ namespace Modmanager_neu
                         else { Sonstiges.DebugText("noch eine mod hinzufügen, fortsetzen"); }
                     }
                     else { Console.WriteLine(Localization.T("mods.menu.new.mod.name.invalid")); }
-                    modslist.Add(modfiles);
+                    
                 }
                 
             }
             //document all mods and files into text files inside the mod folder
-            File.WriteAllLines($@"{modnamepath}\modlist.txt", [.. modslist]);
+            File.WriteAllLines(Path.Combine(modnamepath,modlistsfile), [.. modslist]);
             string[] files = Directory.GetFiles(modfiles, ".", SearchOption.AllDirectories);
-            File.WriteAllLines($@"{modnamepath}\contents.txt", files);
+            for (int i = 0; i < files.Length; i++)
+            {
+                files[i] = (Path.GetRelativePath(modfiles, files[i]));
+            }
+            
+            File.WriteAllLines(Path.Combine(modnamepath, contentsfile), files);
             Console.WriteLine(String.Format(Localization.T("mods.menu.new.mod.finished"), modname, Localization.TArray("mods.menu.options")[0]));
             Menu.WaitForKeypress();
         }
         internal static void SwitchMod() // menu option
         {
-            //Sonstiges.DebugText("Load available mods");
+            Sonstiges.DebugText("Load available mods");
+            string activemod = GetCurrentMod(); //only the name
+            if (!Directory.Exists(modspath))
+            {
+                Console.WriteLine("----   " + Localization.T("mods.menu.change.no.mods") + "   ----");
+                Menu.WaitForKeypress();
+                return;
+            }
 
-            //if (!Directory.Exists(modspath))
-            //{
-            //    Console.WriteLine("----   " + Localization.T("mods.menu.switch.mods.no.mods") + "   ----");
-            //    Menu.WaitForKeypress();
-            //    return;
-            //}
+            string[] dirs = Directory.GetDirectories(modspath);
+            if (dirs.Length == 0)
+            {
+                Console.WriteLine("----   " + Localization.T("mods.menu.change.no.mods") + "   ----");
+                Menu.WaitForKeypress();
+                return;
+            }
 
-            //string[] dirs = Sonstiges.SortArray(Directory.GetDirectories(savebackupath));
-            //if (dirs.Length == 0)
-            //{
-            //    Console.WriteLine("----   " + Localization.T("backup.no.backups") + "   ----");
-            //    Menu.WaitForKeypress();
-            //    return;
-            //}
+            Console.WriteLine("\n" + Localization.T("mods.menu.change.active.mod.prompt"));
+            if (activemod != "Vanilla")
+                Console.WriteLine("0: " + Localization.T("modspath.menu.disable.mods"));
+            for (int i = 0; i < dirs.Length; i++)
+            {
+                Console.WriteLine($"{i + 1}: " + Path.GetRelativePath(modspath, dirs[i]));
+            }
+            Console.WriteLine(Localization.T("menu.go.back.q"));
+            while (true)
+            {
+                Console.Write(Localization.T("pointer"));
+                string input = Console.ReadLine()?.Trim() ?? "";
 
-            //Console.WriteLine("\n" + Localization.T("backup.load.prompt"));
+                if (input.Equals("Q", StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine(Localization.T("backup.load.canceled"));
+                    Menu.WaitForKeypress();
+                    return;
+                }
 
-            //for (int i = 0; i < dirs.Length; i++)
-            //{
-            //    Console.WriteLine($"{i + 1}: " + Path.GetRelativePath(savebackupath, dirs[i]));
-            //}
-            //Console.WriteLine(Localization.T("menu.go.back.q"));
-            //while (true)
-            //{
-            //    Console.Write(Localization.T("pointer"));
-            //    string input = Console.ReadLine()?.Trim() ?? "";
-
-            //    if (input.Equals("Q", StringComparison.OrdinalIgnoreCase))
-            //    {
-            //        Console.WriteLine(Localization.T("backup.load.canceled"));
-            //        Menu.WaitForKeypress();
-            //        return;
-            //    }
-
-            //    if (int.TryParse(input, out int index) && index >= 1 && index <= dirs.Length)
-            //    {
-            //        string backup = dirs[index - 1];
-
-            //        // Dateien verschieben und überschreiben
-            //        string[] oldpath = Directory.GetFiles(backup, "*.*", SearchOption.AllDirectories);
-            //        Console.WriteLine(string.Format(Localization.T("backup.loading"), oldpath.Length, backup));
-
-            //        Sonstiges.Filehelper.Copy(backup, savegamepath, true, oldpath, true);
-
-            //        Console.WriteLine(string.Format(Localization.T("backup.loaded"), backup));
-            //        Menu.WaitForKeypress();
-            //        return;
-            //    }
-            //    else
-            //    {
-            //        Console.WriteLine(Localization.T("menu.wrong.keypress"));
-            //    }
-            //}
+                if (int.TryParse(input, out int index) && index >= 0 && index <= dirs.Length)
+                {
+                    
+                    if (index == 0 & activemod != "Vanilla") //vanilla restore
+                    {
+                        ModToVanilla(activemod);
+                        try
+                        {
+                            File.WriteAllText(Path.Combine(gamepath, modtool, modversionfile), $"Installed Version\nVanilla");
+                        }
+                        catch (Exception ex)
+                        {
+                            WriteLogAndExit(10, ex.Message); //write file error
+                        }
+                    }
+                    else
+                    {
+                        string newmoddir = dirs[index - 1]; //full path to the mod selected
+                        string newmod = Path.GetRelativePath(modspath, newmoddir); //only the name
+                        if (newmod == activemod)
+                        {
+                            Console.WriteLine(Localization.T("mods.menu.change.same"));
+                        }
+                        else if (activemod == "Vanilla")
+                        {
+                            VanillaToMod(newmod);
+                        }
+                        else
+                        {
+                            ModToVanilla(activemod);
+                            VanillaToMod(newmod);
+                        }
+                        try
+                        {
+                            File.WriteAllText(Path.Combine(gamepath, modtool, modversionfile), $"Installed Version\n{newmod}");
+                        }
+                        catch (Exception ex)
+                        {
+                            WriteLogAndExit(10, ex.Message); //write file error
+                        }
+                    }
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine(Localization.T("menu.wrong.keypress"));
+                }
+            }
+            Menu.WaitForKeypress();
+            return;
         }
         internal static void UpdateMod() // menu option
         {
@@ -305,63 +347,61 @@ namespace Modmanager_neu
         {
             Menu.ShowPlaceholder("Mod löschen");
         }
-    }
-    [SupportedOSPlatform("windows")]
-    public static class SteamLibraryFinder
-    {
-        public static List<string> GetAllSteamGameFolders()
+        static void VanillaToMod(string modpath)
         {
-            var gameFolders = new List<string>();
-
-            string? steamPath = GetSteamInstallPath();
-            if (steamPath == null)
-                return gameFolders;
-
-            string steamApps = Path.Combine(steamPath, "steamapps");
-            AddCommonFolder(gameFolders, steamApps);
-
-            string libraryFile = Path.Combine(steamApps, "libraryfolders.vdf");
-            if (!File.Exists(libraryFile))
-                return gameFolders;
-
-            string content = File.ReadAllText(libraryFile);
-
-            // findet Pfade wie: "path"    "D:\\SteamLibrary"
-            var matches = Regex.Matches(content, "\"path\"\\s+\"([^\"]+)\"");
-
-            foreach (Match match in matches)
+            modpath = Path.Combine(modspath, modpath);
+            Sonstiges.DebugText("Vanilla To Mod");
+            //vanillabackup
+            Sonstiges.DebugText($"Lese Datei: {Path.Combine(modpath, contentsfile)}");
+            string[] modfiles = File.ReadAllLines(Path.Combine(modpath, contentsfile)); //relative paths
+            Console.WriteLine(Localization.T("mods.menu.vanillatomod.start"));
+            List<string> vanillafiles = [];
+            Sonstiges.DebugText("Erstelle Database für Vanillafiles, die gesichert werden müssen");
+            foreach (string item in modfiles)
             {
-                string path = match.Groups[1].Value.Replace(@"\\", @"\");
-                string libSteamApps = Path.Combine(path, "steamapps");
-                AddCommonFolder(gameFolders, libSteamApps);
+                bool exists = File.Exists(Path.Combine(gamepath, item));
+                if (exists == true)
+                {
+                    vanillafiles.Add(item); 
+                }
             }
-
-            return gameFolders;
-        }
-
-        private static void AddCommonFolder(List<string> list, string steamAppsPath)
-        {
-            string common = Path.Combine(steamAppsPath, "common");
-            if (Directory.Exists(common))
-                list.Add(common);
-        }
-        private static string? GetSteamInstallPath()
-        {
-            string[] registryPaths =
-            [
-                @"HKEY_CURRENT_USER\Software\Valve\Steam",
-                @"HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Valve\Steam",
-                @"HKEY_LOCAL_MACHINE\SOFTWARE\Valve\Steam"
-            ];
-
-            foreach (var path in registryPaths)
+            Sonstiges.DebugText($"Database mit {vanillafiles.Count} Dateien erstellt. Starte Kopiervorgang");
+            if (!Directory.Exists(vanillapath))
+                Directory.CreateDirectory(vanillapath);
+            Sonstiges.DebugText($"Schreibe Datei: {Path.Combine(vanillapath, contentsfile)}");
+            try
             {
-                var value = Registry.GetValue(path, "SteamPath", null) as string;
-                if (!string.IsNullOrEmpty(value))
-                    return value.Replace('/', '\\');
+                File.WriteAllLines(Path.Combine(vanillapath, contentsfile), [.. vanillafiles]); //relative paths
             }
-
-            return null;
+            catch (Exception ex)
+            {
+                WriteLogAndExit(10, ex.Message); //write file error
+            }
+            Sonstiges.Filehelper.Move(gamepath, Path.Combine(vanillapath, "files"), false, vanillafiles.ToArray(), true, true);
+            Console.WriteLine(Localization.T("mods.menu.vanillatomod.vanillasaved"));
+            //mod install
+            Sonstiges.Filehelper.Move(Path.Combine(modpath, "files"), gamepath, true, modfiles, true, true);
+            Console.WriteLine(Localization.T("mods.menu.vanillatomod.done"));
+        }
+        static void ModToVanilla(string currentmod)
+        {
+            Sonstiges.DebugText("Mod To Vanilla");
+            //mod uninstall
+            string? modpath = Path.Combine(modspath, currentmod);
+            if (modpath != null & Path.Exists(modpath))
+            {
+                Console.WriteLine(Localization.T("mods.menu.modtovanilla.start"));
+                Sonstiges.DebugText($"Lese Datei: {Path.Combine(modpath, contentsfile)}");
+                string[] modfiles = File.ReadAllLines(Path.Combine(modpath, contentsfile)); //relative paths
+                Sonstiges.DebugText($"Lese Datei: {Path.Combine(vanillapath, contentsfile)}");
+                string[] vanillafiles = File.ReadAllLines(Path.Combine(vanillapath, contentsfile)); //relative paths
+                Sonstiges.Filehelper.Move(gamepath, Path.Combine(modpath,"files"), true, modfiles, true, true);
+                Console.WriteLine(Localization.T("mods.menu.modtovanilla.moduninstall.done"));
+                Sonstiges.Filehelper.Move(Path.Combine(vanillapath,"files"), gamepath, true, vanillafiles, true, true);
+                Console.WriteLine(Localization.T("mods.menu.modtovanilla.vanillarecovery.done"));
+            }
+                
         }
     }
+    
 }

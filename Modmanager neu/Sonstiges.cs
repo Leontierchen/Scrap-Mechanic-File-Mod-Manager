@@ -1,7 +1,9 @@
-﻿using System.Globalization;
+﻿using Microsoft.Win32;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text;
+using System.Text.RegularExpressions;
 using static Modmanager_neu.Program;
 
 namespace Modmanager_neu
@@ -14,7 +16,7 @@ namespace Modmanager_neu
             if (IsDebug)
                 Console.WriteLine("[Debug] " + text);
         }
-        public static string[] SortArray(string [] array)
+        public static string[] SortArray(string[] array)
         {
             var sorted = array.Select(s =>
             {
@@ -40,7 +42,7 @@ namespace Modmanager_neu
         .OrderByDescending(x => x.Date)
         .Select(x => x.Name)
         .ToArray();
-        return sorted;
+            return sorted;
         }
         public static class NativeMethods
         {
@@ -84,6 +86,7 @@ namespace Modmanager_neu
             }
         }
         public static class NativeConsole
+
         {
             private const int STD_OUTPUT_HANDLE = -11;
 
@@ -137,62 +140,36 @@ namespace Modmanager_neu
         }
         public static class ProgressBar
         {
-            private static int? _startY;
-
-            public static void Draw(int current, int max, int barWidth = 30)
+            public static void Draw(int current, int total, int width = 70)
             {
-                if (max <= 0) max = 1;
+                if (total <= 0) total = 1;
                 if (current < 0) current = 0;
-                if (current > max) current = max;
+                if (current > total) current = total;
 
-                _startY ??= Console.CursorTop;
+                double progress = (double)current / total;
+                int filled = (int)(progress * width);
 
-                int startY = _startY.Value;
+                string bar =
+                    new string('█', filled) +
+                    new string('░', width - filled);
 
-                if (startY + 1 >= Console.BufferHeight)
-                {
-                    startY = Console.BufferHeight - 3;
-                    _startY = startY;
-                }
-
-                double percent = (double)current / max;
-                int filled = (int)Math.Round(percent * barWidth);
-                int percentage = (int)Math.Round(percent * 100);
-
-                string text = $"{percentage,3}% ({current}/{max})";
-
-                int barX = Math.Max(0, (Console.WindowWidth - (barWidth + 2)) / 2);
-                int textX = Math.Max(0, (Console.WindowWidth - text.Length) / 2);
-
-                Console.SetCursorPosition(textX, startY);
-                Console.Write(text.PadRight(Console.WindowWidth));
-
-                Console.SetCursorPosition(barX, startY + 1);
-                Console.Write("[");
-                Console.Write(new string('█', filled));
-                Console.Write(new string('░', barWidth - filled));
-                Console.Write("]");
-                if (current == max)
-                    Finish();
-            }
-
-            public static void Finish()
-            {
-                if (_startY == null)
-                    return;
-
-                int endLine = _startY.Value + 2;
-
-                if (endLine >= Console.BufferHeight)
-                    endLine = Console.BufferHeight - 1;
-
-                Console.SetCursorPosition(0, endLine);
-                _startY = null;
+                Console.Write($"\r{current} [{bar}] {total}");
+                if (current == total)
+                    Console.WriteLine();
             }
         }
         public static class Filehelper
         {
-            public static void Move(string source, string target, bool overwrite = false, string[]? files = null, bool useProgressbar = true)
+            /// <summary>
+            /// Moves files with progress bar and error handling. If files array is null, it will scan the source directory for all files. It preserves directory structure. If overwrite is false, existing files in target will be skipped. If combine is true, source and files are getting their path combined.
+            /// </summary>
+            /// <param name="source"></param> The source directory to move files from. If combine is true, this will be combined with the file paths in the files array.
+            /// <param name="target"></param> The target directory to move files to. The directory structure from source will be preserved under this target directory.
+            /// <param name="overwrite"></param> If true, existing files in the target location will be overwritten. If false, existing files will be skipped and a message will be printed.
+            /// <param name="files"></param> An optional array of file paths to move. If null, the method will scan the source directory and all subdirectories for files to move. The paths in this array can be either absolute or relative to the source directory. If combine is true, they will be combined with the source path.
+            /// <param name="useProgressbar"></param> If true, a progress bar will be displayed in the console to show the progress of the move operation. The progress bar will update after each file is processed.
+            /// <param name="combine"></param> If true, the method will combine the source path with the file paths in the files array to determine the full path of each file to move. This allows for more flexible file lists that can be relative to the source directory. If false, the paths in the files array are treated as absolute paths.
+            public static void Move(string source, string target, bool overwrite = false, string[]? files = null, bool useProgressbar = true, bool combine = false)
             {
                 DebugText("Move started");
                 if (files == null)
@@ -207,43 +184,47 @@ namespace Modmanager_neu
                 {
                     if (useProgressbar)
                         ProgressBar.Draw(i + 1, files.Length);
+                    if (combine)
+                        files[i] = Path.Combine(source, files[i]);
 
                     string filename = Path.GetFileName(files[i]);
                     string? path = Path.GetDirectoryName(files[i]);
                     string? newpath = Path.Combine(target, Path.GetRelativePath(source, path));
                     string newfile = Path.Combine(newpath, filename);
 
-                    if (File.Exists(Path.Combine(newpath, filename)))
+                   if (!Directory.Exists(newpath))
                     {
-                        Console.WriteLine(String.Format(Localization.T("file.exists.skip"), files[i]));
-                    }
-                    else
-                    {
-                        if (!Directory.Exists(newpath))
-                        {
-                            try
-                            {
-                                Directory.CreateDirectory(newpath);
-                            }
-                            catch (Exception ex)
-                            {
-                                WriteLogAndExit(5, ex.Message);
-                            }
-                            // copy file error 
-                        }
                         try
                         {
-                            File.Move(files[i],newfile, overwrite);
+                            Directory.CreateDirectory(newpath);
                         }
                         catch (Exception ex)
                         {
-                            WriteLogAndExit(5, $"\nMessage: {ex.Message}\nOldfile: {files[i]}\nNewfile: {newfile}\n");
+                            WriteLogAndExit(5, ex.Message);
                         }
+                        // copy file error 
+                    }
+                    try
+                    {
+                        File.Move(files[i],newfile, overwrite);
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteLogAndExit(5, $"\nMessage: {ex.Message}\nOldfile: {files[i]}\nNewfile: {newfile}\n");
                     }
                 }
                 DebugText("Move done");
             }
-            public static void Copy(string source, string target, bool overwrite = false, string[]? files = null, bool useProgressbar = true)
+            /// <summary>
+            /// Copies files with progress bar and error handling. If files array is null, it will scan the source directory for all files. It preserves directory structure. If overwrite is false, existing files in target will be skipped. If combine is true, source and files are getting their path combined.
+            /// </summary>
+            /// <param name="source"></param> The source directory to copy files from. If combine is true, this will be combined with the file paths in the files array.
+            /// <param name="target"></param> The target directory to copy files to. The directory structure from source will be preserved under this target directory.
+            /// <param name="overwrite"></param> If true, existing files in the target location will be overwritten. If false, existing files will be skipped and a message will be printed.
+            /// <param name="files"></param> An optional array of file paths to copy. If null, the method will scan the source directory and all subdirectories for files to copy. The paths in this array can be either absolute or relative to the source directory. If combine is true, they will be combined with the source path.
+            /// <param name="useProgressbar"></param> If true, a progress bar will be displayed in the console to show the progress of the copy operation. The progress bar will update after each file is processed.
+            /// <param name="combine"></param>
+            public static void Copy(string source, string target, bool overwrite = false, string[]? files = null, bool useProgressbar = true, bool combine = false)
             {
                 DebugText("Copy started");
 
@@ -258,8 +239,9 @@ namespace Modmanager_neu
                 {
                     if (useProgressbar)
                         ProgressBar.Draw(i + 1, files.Length); 
-                      
-
+                    if (combine)
+                      files[i] = Path.Combine(source, files[i]);
+                    
                     string filename = Path.GetFileName(files[i]);
                     string? path = Path.GetDirectoryName(files[i]);
                     string? newpath = Path.Combine(target, Path.GetRelativePath(source, path));
@@ -346,6 +328,64 @@ namespace Modmanager_neu
                     Console.WriteLine($"Fehler beim Löschen des Hauptordners {path}: {ex.Message}");
                 }
             }
+        }
+    }
+    [SupportedOSPlatform("windows")]
+    public static class SteamLibraryFinder
+    {
+        public static List<string> GetAllSteamGameFolders()
+        {
+            var gameFolders = new List<string>();
+
+            string? steamPath = GetSteamInstallPath();
+            if (steamPath == null)
+                return gameFolders;
+
+            string steamApps = Path.Combine(steamPath, "steamapps");
+            AddCommonFolder(gameFolders, steamApps);
+
+            string libraryFile = Path.Combine(steamApps, "libraryfolders.vdf");
+            if (!File.Exists(libraryFile))
+                return gameFolders;
+
+            string content = File.ReadAllText(libraryFile);
+
+            // findet Pfade wie: "path"    "D:\\SteamLibrary"
+            var matches = Regex.Matches(content, "\"path\"\\s+\"([^\"]+)\"");
+
+            foreach (Match match in matches)
+            {
+                string path = match.Groups[1].Value.Replace(@"\\", @"\");
+                string libSteamApps = Path.Combine(path, "steamapps");
+                AddCommonFolder(gameFolders, libSteamApps);
+            }
+
+            return gameFolders;
+        }
+
+        private static void AddCommonFolder(List<string> list, string steamAppsPath)
+        {
+            string common = Path.Combine(steamAppsPath, "common");
+            if (Directory.Exists(common))
+                list.Add(common);
+        }
+        private static string? GetSteamInstallPath()
+        {
+            string[] registryPaths =
+            [
+                @"HKEY_CURRENT_USER\Software\Valve\Steam",
+                @"HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Valve\Steam",
+                @"HKEY_LOCAL_MACHINE\SOFTWARE\Valve\Steam"
+            ];
+
+            foreach (var path in registryPaths)
+            {
+                var value = Registry.GetValue(path, "SteamPath", null) as string;
+                if (!string.IsNullOrEmpty(value))
+                    return value.Replace('/', '\\');
+            }
+
+            return null;
         }
     }
 }

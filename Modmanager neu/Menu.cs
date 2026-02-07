@@ -21,7 +21,7 @@ internal static class Menu
         ShowMenu(
             titleKey: "main.menu.title",
             subTextKey: "main.menu.subtext",
-            subTextArg: Modtool.GetCurrentMod(),
+            subTextArg: "currentmod",
             optionsKey: "main.menu.options",
             actions:
             [
@@ -85,7 +85,7 @@ internal static class Menu
             ShowMenu(
                 "mods.menu.title",
                 "mods.menu.subtext",
-                Modtool.GetCurrentMod(),
+                "currentmod",
                 "mods.menu.options",
                 [
                     Modtool.SwitchMod,
@@ -148,6 +148,8 @@ internal static class Menu
                     object? subTextArg2;
                     if (sub == "lastbackup")
                         subTextArg2 = BackupManager.GetLastBackupName();
+                    else if (sub == "currentmod")
+                        subTextArg2 = Modtool.GetCurrentMod();
                     else
                         subTextArg2 = subTextArg;
 
