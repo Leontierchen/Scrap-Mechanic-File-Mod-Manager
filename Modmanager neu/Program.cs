@@ -181,7 +181,8 @@ namespace Modmanager_neu
             try
             {
                 var json = File.ReadAllText(found);
-                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };
+                var options = jsonSerializerOptions;
                 var cfg = JsonSerializer.Deserialize<Config>(json, options);
 
                 return cfg;
@@ -201,20 +202,21 @@ namespace Modmanager_neu
             // Standardpfad neben der EXE
             return Path.Combine(AppContext.BaseDirectory, "config.json");
         }
-        private static Array GetConfigSearchPaths()
+        private static string[] GetConfigSearchPaths()
         {
-            return new[] {
+            return [
                 Path.Combine(AppContext.BaseDirectory, "logs", "config.json"),
                 Path.Combine(AppContext.BaseDirectory, "config.json"),
                 Path.Combine(Directory.GetCurrentDirectory(), "config.json"),
                 Path.Combine(AppContext.BaseDirectory, "language", "config.json"),
                 Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "config.json"),
-            };
+            ];
         }
         // Speichert die Konfiguration als prettified JSON an dem angegebenen Pfad
         public static void SaveConfig(Config cfg)
         {
-            var options = new JsonSerializerOptions { WriteIndented = true };
+            JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = true };
+            var options = jsonSerializerOptions;
             var json = JsonSerializer.Serialize(cfg, options);
             File.WriteAllText(GetConfigFilePath(), json, Encoding.UTF8);
         }
@@ -555,15 +557,14 @@ namespace Modmanager_neu
                 _map![key] = JsonSerializer.SerializeToElement(translatedArray);
 
                 Console.WriteLine("\n✓ Übersetzungen gespeichert!\n");
-                return translatedArray.ToArray();
+                return [.. translatedArray];
             }
 
             private static void SaveTranslation(string key, string value)
             {
                 try
                 {
-                    if (_map == null)
-                        _map = [];
+                    _map ??= [];
 
                     var baseDir = AppContext.BaseDirectory;
                     var langDir = Path.Combine(baseDir, "language");
@@ -572,7 +573,8 @@ namespace Modmanager_neu
                     var file = Path.Combine(langDir, _lang + ".json");
 
                     // Speichere die aktuelle Map
-                    var options = new JsonSerializerOptions { WriteIndented = true };
+                    JsonSerializerOptions serializerOptions = new() { WriteIndented = true };
+                    var options = serializerOptions;
                     var json = JsonSerializer.Serialize(_map, options);
                     File.WriteAllText(file, json, Encoding.UTF8);
 
@@ -588,8 +590,7 @@ namespace Modmanager_neu
             {
                 try
                 {
-                    if (_map == null)
-                        _map = [];
+                    _map ??= [];
 
                     var baseDir = AppContext.BaseDirectory;
                     var langDir = Path.Combine(baseDir, "language");
@@ -598,7 +599,8 @@ namespace Modmanager_neu
                     var file = Path.Combine(langDir, _lang + ".json");
 
                     // Speichere die aktuelle Map
-                    var options = new JsonSerializerOptions { WriteIndented = true };
+                    JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = true };
+                    var options = jsonSerializerOptions;
                     var json = JsonSerializer.Serialize(_map, options);
                     File.WriteAllText(file, json, Encoding.UTF8);
 

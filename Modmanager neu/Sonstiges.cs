@@ -298,16 +298,16 @@ namespace Modmanager_neu
                 }
 
                 // Lösche Unterordner von unten nach oben
-                string[] dirs = Directory.GetDirectories(path, "*", SearchOption.AllDirectories)
-                                         .OrderByDescending(d => d.Length) // tiefste zuerst
-                                         .ToArray();
+                string[] dirs = [.. Directory.GetDirectories(path, "*", SearchOption.AllDirectories).OrderByDescending(d => d.Length)];
 
                 foreach (string dir in dirs)
                 {
                     try
                     {
-                        DirectoryInfo di = new DirectoryInfo(dir);
-                        di.Attributes = FileAttributes.Normal; // Schreibgeschützt/System entfernen
+                        DirectoryInfo di = new(dir)
+                        {
+                            Attributes = FileAttributes.Normal // Schreibgeschützt/System entfernen
+                        };
                         Directory.Delete(dir);
                     }
                     catch (Exception ex)
@@ -319,8 +319,10 @@ namespace Modmanager_neu
                 // Zuletzt den Hauptordner löschen
                 try
                 {
-                    DirectoryInfo mainDir = new DirectoryInfo(path);
-                    mainDir.Attributes = FileAttributes.Normal;
+                    DirectoryInfo mainDir = new(path)
+                    {
+                        Attributes = FileAttributes.Normal
+                    };
                     Directory.Delete(path);
                 }
                 catch (Exception ex)

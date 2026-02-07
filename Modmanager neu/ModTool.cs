@@ -377,7 +377,7 @@ namespace Modmanager_neu
             {
                 WriteLogAndExit(10, ex.Message); //write file error
             }
-            Sonstiges.Filehelper.Move(gamepath, Path.Combine(vanillapath, "files"), false, vanillafiles.ToArray(), true, true);
+            Sonstiges.Filehelper.Move(gamepath, Path.Combine(vanillapath, "files"), false, [.. vanillafiles], true, true);
             Console.WriteLine(Localization.T("mods.menu.vanillatomod.vanillasaved"));
             //mod install
             Sonstiges.Filehelper.Move(Path.Combine(modpath, "files"), gamepath, true, modfiles, true, true);
