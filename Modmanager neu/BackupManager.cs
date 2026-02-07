@@ -172,5 +172,6 @@ namespace Modmanager_neu
             return Path.GetFileName(sorted[0]);
         }
 
+                            WriteLogAndExit(5, $"\nMessage: {ex.Message}\nOldfile: {sourcePath}\nNewfile: {newfile}\n");
     }
 }
