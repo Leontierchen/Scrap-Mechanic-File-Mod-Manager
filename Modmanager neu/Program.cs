@@ -107,6 +107,7 @@ namespace Modmanager_neu
                     8 => string.Format(Localization.T("exit.code.8"), ex), // Create directory error
                     9 => string.Format(Localization.T("exit.code.9"), ex), // Extract zip error
                     10 => string.Format(Localization.T("exit.code.10"), ex), // Write file error
+                    11 => string.Format(Localization.T("exit.code.11"), ex), // Rename mod error
 
                     30 => Localization.T("placeholder"), // placeholder for future errors
                     40 => string.Format(Localization.T("placeholder"), ex), // placeholder for future errors with details

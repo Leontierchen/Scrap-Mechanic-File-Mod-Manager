@@ -23,7 +23,7 @@ namespace Modmanager_neu
         private class BackupManifest
         {
             public string? BackupName { get; set; }
-            public List<FileDeduplication> DuplicatedFiles { get; set; } = new();
+            public List<FileDeduplication> DuplicatedFiles { get; set; } = [];
         }
 
         public static void CreateBackup() // menu option
@@ -75,7 +75,7 @@ namespace Modmanager_neu
             if (filesToCopy.Count > 0)
             {
                 Console.WriteLine("\n" + String.Format(Localization.T("backup.creating"), filesToCopy.Count, newbackupdirectory));
-                Sonstiges.Filehelper.Copy(savegamepath, newbackupdirectory, true, filesToCopy.ToArray(), true);
+                Sonstiges.Filehelper.Copy(savegamepath, newbackupdirectory, true, [.. filesToCopy], true);
             }
 
             // Speichere Manifest mit duplizierten Dateien
@@ -94,7 +94,7 @@ namespace Modmanager_neu
             Sonstiges.DebugText("Backup creation completed.");
             Menu.WaitForKeypress();
         }
-        public static void LoadBackup() // menu option
+        public static void LoadBackup() // menu option auf neue methode picker umstellen
         {
             Sonstiges.DebugText("Load Backups");
 
@@ -127,7 +127,7 @@ namespace Modmanager_neu
 
                 if (input.Equals("Q", StringComparison.OrdinalIgnoreCase))
                 {
-                    Console.WriteLine(Localization.T("backup.load.canceled"));
+                    Console.WriteLine(Localization.T("picker.canceled"));
                     Menu.WaitForKeypress();
                     return;
                 }
@@ -135,9 +135,7 @@ namespace Modmanager_neu
                 if (int.TryParse(input, out int index) && index >= 1 && index <= dirs.Length)
                 {
                     string backup = dirs[index - 1];
-                    string[] backupFiles = Directory.GetFiles(backup, "*.*", SearchOption.AllDirectories)
-                        .Where(f => !f.EndsWith("manifest.json"))
-                        .ToArray();
+                    string[] backupFiles = [.. Directory.GetFiles(backup, "*.*", SearchOption.AllDirectories).Where(f => !f.EndsWith("manifest.json"))];
 
                     Console.WriteLine(string.Format(Localization.T("backup.loading"), backupFiles.Length, Path.GetRelativePath(savebackupath, backup)));
 
@@ -166,7 +164,7 @@ namespace Modmanager_neu
 
         public static void DeleteBackup() // menu option
         {
-            Sonstiges.DebugText("Delete Backups");
+            Sonstiges.DebugText("Delete Backups"); // auf neue methode picker umstellen
 
             if (!Directory.Exists(savebackupath))
             {
@@ -189,7 +187,7 @@ namespace Modmanager_neu
             {
                 Console.WriteLine($"{i + 1}: " + Path.GetRelativePath(savebackupath, dirs[i]));
             }
-            Console.WriteLine(Localization.T("backup.delete.all.a"));
+            Console.WriteLine(Localization.T("backup.delete.all.a")); //nicht mehr verfügbar
             Console.WriteLine(Localization.T("menu.go.back.q"));
             while (true)
             {
@@ -198,7 +196,7 @@ namespace Modmanager_neu
 
                 if (input.Equals("Q", StringComparison.OrdinalIgnoreCase))
                 {
-                    Console.WriteLine(Localization.T("backup.delete.canceled"));
+                    Console.WriteLine(Localization.T("picker.canceled"));
                     Menu.WaitForKeypress();
                     return;
                 }
@@ -292,7 +290,8 @@ namespace Modmanager_neu
                 }
 
                 string manifestPath = Path.Combine(backupPath, "manifest.json");
-                var options = new JsonSerializerOptions { WriteIndented = true };
+                JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = true };
+                var options = jsonSerializerOptions;
                 string json = JsonSerializer.Serialize(manifest, options);
                 File.WriteAllText(manifestPath, json);
                 Sonstiges.DebugText($"Manifest gespeichert: {manifestPath}");
@@ -334,6 +333,8 @@ namespace Modmanager_neu
                 
                 try
                 {
+                    if (dupFile.ReferencedBackup == null || dupFile.RelativePath == null)
+                        continue;
                     string sourcePath = Path.Combine(dupFile.ReferencedBackup, dupFile.RelativePath);
                     string targetFilePath = Path.Combine(targetPath, dupFile.RelativePath);
                     
