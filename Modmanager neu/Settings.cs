@@ -21,7 +21,7 @@ namespace Modmanager_neu
             if (!Directory.Exists(langDir))
             {
                 Console.WriteLine("Language-Ordner nicht gefunden.");
-                Menu.WaitForKeypress();
+                IO.WaitForKeypress();
                 return;
             }
 
@@ -53,13 +53,13 @@ namespace Modmanager_neu
 
             if (languages.Count == 0)
             {
-                Console.WriteLine(Localization.T("settings.language.no.files"));
-                Menu.WaitForKeypress();
+                IO.ShowMessage("settings.language.no.files");
+                IO.WaitForKeypress();
                 return;
             }
 
             Console.Clear();
-            Console.WriteLine(Localization.T("settings.language.select"));
+            IO.ShowMessage("settings.language.select");
             Console.WriteLine();
 
             for (int i = 0; i < languages.Count; i++)
@@ -68,12 +68,10 @@ namespace Modmanager_neu
                 Console.WriteLine($"{i + 1}) {languages[i].Name} ({languages[i].Code}){current}");
             }
 
-            Console.WriteLine(Localization.T("menu.go.back.q"));
-
             while (true)
             {
-                Console.Write(Localization.T("pointer"));
-                string input = Console.ReadLine()?.Trim() ?? "";
+                
+                string input = IO.Handleinput(q: true);
 
                 if (input.Equals("Q", StringComparison.OrdinalIgnoreCase))
                     return;
@@ -89,18 +87,13 @@ namespace Modmanager_neu
 
                     Program.SaveConfig(config);
 
-                    Console.WriteLine(
-                        string.Format(
-                            Localization.T("settings.language.changed"),
-                            selected.Name
-                        )
-                    );
+                    IO.ShowMessage("settings.language.changed", [selected.Name]);
 
-                    Menu.WaitForKeypress();
+                    IO.WaitForKeypress();
                     return;
                 }
 
-                Console.WriteLine(Localization.T("menu.wrong.keypress"));
+                IO.ShowMessage("menu.wrong.keypress");
             }
         }
         public static void Toggledebug()
@@ -112,9 +105,9 @@ namespace Modmanager_neu
 
             SaveConfig(config);
             IsDebug = config.Debug;
-            Console.WriteLine(String.Format(Localization.T("settings.debug.changed"),IsDebug));
+            IO.ShowMessage("settings.debug.changed", [IsDebug.ToString()]);
 
-            Menu.WaitForKeypress();
+            IO.WaitForKeypress();
         }
     }
 }

@@ -11,7 +11,6 @@ namespace Modmanager_neu
         public static readonly string steamuser = Steam.GetSteamUser();
         public static readonly string savegamepath = Path.Combine(steamuser, "Save");
         public static readonly string savebackupath = Path.Combine(Directory.GetCurrentDirectory(), "Save backup");
-
         private class FileDeduplication
         {
             public string? RelativePath { get; set; }
@@ -90,18 +89,18 @@ namespace Modmanager_neu
                 
             }
            
-            Console.WriteLine(Localization.T("backup.created"));
+            IO.ShowMessage("backup.created");
             Sonstiges.DebugText("Backup creation completed.");
-            Menu.WaitForKeypress();
+            IO.WaitForKeypress();
         }
-        public static void LoadBackup() // menu option auf neue methode picker umstellen
+        public static void LoadBackup() // menu option 
         {
             Sonstiges.DebugText("Load Backups");
 
             if (!Directory.Exists(savebackupath))
             {
                 Console.WriteLine("----   " + Localization.T("backup.no.backups") + "   ----");
-                Menu.WaitForKeypress();
+                IO.WaitForKeypress();
                 return;
             }
 
@@ -109,7 +108,7 @@ namespace Modmanager_neu
             if (dirs.Length == 0)
             {
                 Console.WriteLine("----   " + Localization.T("backup.no.backups") + "   ----");
-                Menu.WaitForKeypress();
+                IO.WaitForKeypress();
                 return;
             }
 
@@ -119,16 +118,14 @@ namespace Modmanager_neu
             {
                 Console.WriteLine($"{i + 1}: " + Path.GetRelativePath(savebackupath, dirs[i]));
             }
-            Console.WriteLine(Localization.T("menu.go.back.q"));
             while (true)
             {
-                Console.Write(Localization.T("pointer"));
-                string input = Console.ReadLine()?.Trim() ?? "";
+                string input = IO.Handleinput(q: true);
 
                 if (input.Equals("Q", StringComparison.OrdinalIgnoreCase))
                 {
-                    Console.WriteLine(Localization.T("picker.canceled"));
-                    Menu.WaitForKeypress();
+                    IO.ShowMessage("picker.canceled");
+                    IO.WaitForKeypress();
                     return;
                 }
 
@@ -136,7 +133,7 @@ namespace Modmanager_neu
                 {
                     string backup = dirs[index - 1];
                     string[] backupFiles = [.. Directory.GetFiles(backup, "*.*", SearchOption.AllDirectories).Where(f => !f.EndsWith("manifest.json"))];
-
+                    
                     Console.WriteLine(string.Format(Localization.T("backup.loading"), backupFiles.Length, Path.GetRelativePath(savebackupath, backup)));
 
                     // Kopiere alle Dateien aus dem Backup
@@ -151,25 +148,25 @@ namespace Modmanager_neu
                             LoadDuplicatedFiles(manifest, savegamepath);
                     }
 
-                    Console.WriteLine(string.Format(Localization.T("backup.loaded"), Path.GetRelativePath(savebackupath, backup)));
-                    Menu.WaitForKeypress();
+                    IO.ShowMessage("backup.loaded", [Path.GetRelativePath(savebackupath, backup)]);
+                    IO.WaitForKeypress();
                     return;
                 }
                 else
                 {
-                    Console.WriteLine(Localization.T("menu.wrong.keypress"));
+                    IO.ShowMessage("menu.wrong.keypress");
                 }
             }
         }
 
         public static void DeleteBackup() // menu option
         {
-            Sonstiges.DebugText("Delete Backups"); // auf neue methode picker umstellen
+            Sonstiges.DebugText("Delete Backups"); 
 
             if (!Directory.Exists(savebackupath))
             {
                 Console.WriteLine("----   " + Localization.T("backup.no.backups") + "   ----");
-                Menu.WaitForKeypress();
+                IO.WaitForKeypress();
                 return;
             }
 
@@ -177,7 +174,7 @@ namespace Modmanager_neu
             if (dirs.Length == 0)
             {
                 Console.WriteLine("----   " + Localization.T("backup.no.backups") + "   ----");
-                Menu.WaitForKeypress();
+                IO.WaitForKeypress();
                 return;
             }
 
@@ -187,28 +184,25 @@ namespace Modmanager_neu
             {
                 Console.WriteLine($"{i + 1}: " + Path.GetRelativePath(savebackupath, dirs[i]));
             }
-            Console.WriteLine(Localization.T("backup.delete.all.a")); //nicht mehr verfügbar
-            Console.WriteLine(Localization.T("menu.go.back.q"));
             while (true)
             {
-                Console.Write(Localization.T("pointer"));
-                string input = Console.ReadLine()?.Trim() ?? "";
+                string input = IO.Handleinput(q: true, a: true);
 
                 if (input.Equals("Q", StringComparison.OrdinalIgnoreCase))
                 {
-                    Console.WriteLine(Localization.T("picker.canceled"));
-                    Menu.WaitForKeypress();
+                    IO.ShowMessage("picker.canceled");
+                    IO.WaitForKeypress();
                     return;
                 }
                 if (input.Equals("A", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (Menu.YesOrNoPrompt(Localization.T("delete.all.prompt")))
+                    if (IO.YesOrNoPrompt(Localization.T("delete.all.prompt")))
                     {
                         foreach (var backup in dirs)
                             Sonstiges.Filehelper.DeleteDirectory(backup, true);
 
-                        Console.WriteLine(Localization.T("delete.all.done"));
-                        Menu.WaitForKeypress();
+                        IO.ShowMessage("delete.all.done");
+                        IO.WaitForKeypress();
                         return;
                     }
                     else
@@ -223,13 +217,13 @@ namespace Modmanager_neu
 
                     Sonstiges.Filehelper.DeleteDirectory(backup, true);
 
-                    Console.WriteLine(string.Format(Localization.T("backup.deleted"), backup));
-                    Menu.WaitForKeypress();
+                    IO.ShowMessage("backup.deleted", [backup]);
+                    IO.WaitForKeypress();
                     return;
                 }
                 else
                 {
-                    Console.WriteLine(Localization.T("menu.wrong.keypress"));
+                    IO.ShowMessage("menu.wrong.keypress");
                 }
             }
         }
@@ -298,7 +292,7 @@ namespace Modmanager_neu
             }
             catch (Exception ex)
             {
-                Console.WriteLine(String.Format(Localization.T("manifest.save.error"), ex.Message));
+                IO.ShowMessage("manifest.save.error", [ex.Message]);
             }
         }
 

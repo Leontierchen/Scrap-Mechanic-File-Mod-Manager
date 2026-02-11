@@ -15,6 +15,12 @@
 		</None>
 	</ItemGroup>
 
+	<ItemGroup>
+		<None Include="ScrapMechanicLaunch.bat">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
 	<!-- Include language files in output (lang folder) -->
 	<ItemGroup>
 		<None Include="language\**\*.json">

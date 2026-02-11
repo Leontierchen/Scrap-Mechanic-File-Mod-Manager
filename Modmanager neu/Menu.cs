@@ -29,7 +29,7 @@ internal static class Menu
                 OpenOutfitMenu,
                 OpenModsMenu,
                 OpenSettingsMenu,
-                OpenContactMenu,
+                Sonstiges.Contacts,
                 StartGame
             ]
         );
@@ -65,7 +65,7 @@ internal static class Menu
             ShowMenu(
                 "outfit.menu.title",
                 "outfit.menu.subtext",
-                OutfitManager.GetCurrentOutfit(),
+                "currentoutfit",
                 "outfit.menu.options",
                 [
                     OutfitManager.SaveOutfit,
@@ -89,7 +89,7 @@ internal static class Menu
                 "mods.menu.options",
                 [
                     Modtool.SwitchMod,
-                    Modtool.AddMod,
+                    () => Modtool.AddMod(), // Lambda-Ausdruck verwendet
                     Modtool.UpdateMod,
                     Modtool.RenameMod,
                     Modtool.RemoveMod
@@ -115,11 +115,6 @@ internal static class Menu
                ]
            )
        );
-    }
-
-    public static void OpenContactMenu()
-    {
-        ShowPlaceholder("Kontakt");
     }
 
     // -------------------------
@@ -150,6 +145,8 @@ internal static class Menu
                         subTextArg2 = BackupManager.GetLastBackupName();
                     else if (sub == "currentmod")
                         subTextArg2 = Modtool.GetCurrentMod();
+                    else if (sub == "currentoutfit")
+                        subTextArg2 = OutfitManager.GetCurrentOutfit();
                     else
                         subTextArg2 = subTextArg;
 
@@ -176,17 +173,17 @@ internal static class Menu
                 }
             }
             if (MenuStack.Count > 0)
-                Console.WriteLine(Localization.T("menu.go.back.esc"));
+                IO.ShowMessage("menu.go.back.esc");
             else
-                Console.WriteLine(Localization.T("menu.exit.esc"));
+                IO.ShowMessage("menu.exit.esc");
 
 
-            bool abort = HandleInput(actions,MenuStack.Count);
+            bool abort = HandleMenuInput(actions,MenuStack.Count);
             if (abort)
                 break;
         }
     }
-    public static bool HandleInput(Action[] actions, int menuCount)
+    public static bool HandleMenuInput(Action[] actions, int menuCount)
     {
         while (true)
         {
@@ -218,7 +215,7 @@ internal static class Menu
                 return true;
             }
             // Ungültige Taste 
-            Console.WriteLine(Localization.T("menu.wrong.keypress"));
+            IO.ShowMessage("menu.wrong.keypress");
             //System.Threading.Thread.Sleep(1500);
         }
     }
@@ -247,9 +244,9 @@ internal static class Menu
     {
         Console.Clear();
         Console.WriteLine(name);
-        Console.WriteLine(Localization.T("placeholder"));
+        IO.ShowMessage("placeholder");
         Console.WriteLine();
-        Console.WriteLine(Localization.T("request.keypress"));
+        IO.ShowMessage("request.keypress");
         Console.ReadKey();
     }
 
@@ -257,38 +254,16 @@ internal static class Menu
     {
         if (!IsDebug)
             System.Diagnostics.Process.Start("ScrapMechanicLaunch.bat");
+        else
+            Sonstiges.DebugText("Spiel starten (Debug Mode: Kein tatsächlicher Start)");
+        WriteLogAndExit(0); // Beendet das Programm mit einem Rückgabewert von 0 (erfolgreich)
     }
 
-    /// <summary>
-    /// Stellt dem Nutzer eine Frage, die mit Ja oder nein beantwortet werden muss.
-    /// </summary>
-    /// <param name="question">Fragetext als String</param>
-    /// <returns>Ja -> true, Nein -> false</returns>
-    public static bool YesOrNoPrompt(string question)
-    {
-        Console.WriteLine($"{question} (Y/J or N )");
-        Localization.T("pointer");
-        while (true)
-        {
-            var key = Console.ReadKey(true).Key;
-
-            if (key == ConsoleKey.Y || key == ConsoleKey.J)
-                return true;
-            else if (key == ConsoleKey.N)
-                return false;
-            else
-                Console.WriteLine(Localization.T("menu.wrong.keypress"));
-        }
-    }
-
+    
+    
     public static void ExitProgram()
     {
-        Console.WriteLine(Localization.T("program.exit"));
+        IO.ShowMessage("program.exit");
     }
-    public static void WaitForKeypress()
-    {
-        Console.WriteLine("\n" + Localization.T("request.keypress"));
-        Console.Write(Localization.T("pointer"));
-        Console.ReadKey();
-    }
+    
 }

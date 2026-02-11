@@ -11,6 +11,14 @@ namespace Modmanager_neu
     [SupportedOSPlatform("windows")]
     internal class Sonstiges
     {
+        public static void Contacts() 
+        { 
+            DebugText("Showing contact info");
+            Console.Clear();
+            IO.ShowMessage("contact.header");
+            IO.ShowMessage("contact.info");
+            IO.WaitForKeypress();
+        }
         public static void DebugText(string text)
         {
             if (IsDebug)
@@ -189,7 +197,7 @@ namespace Modmanager_neu
 
                     string filename = Path.GetFileName(files[i]);
                     string? path = Path.GetDirectoryName(files[i]);
-                    string? newpath = Path.Combine(target, Path.GetRelativePath(source, path));
+                    string? newpath = Path.Combine(target, Path.GetRelativePath(source, path!));
                     string newfile = Path.Combine(newpath, filename);
 
                    if (!Directory.Exists(newpath))
@@ -244,7 +252,7 @@ namespace Modmanager_neu
                     
                     string filename = Path.GetFileName(files[i]);
                     string? path = Path.GetDirectoryName(files[i]);
-                    string? newpath = Path.Combine(target, Path.GetRelativePath(source, path));
+                    string? newpath = Path.Combine(target, Path.GetRelativePath(source, path!));
                     string newfile = Path.Combine(newpath, filename);
                     if (!Directory.Exists(newpath))
                     {
@@ -389,6 +397,166 @@ namespace Modmanager_neu
 
             return null;
         }
+    }
+    [SupportedOSPlatform("windows")]
+    public static class IO
+    {
+        public static void WaitForKeypress()
+        {
+            Console.WriteLine("\n" + Localization.T("request.keypress"));
+            Console.Write(Localization.T("pointer"));
+            Console.ReadKey();
+        }
+        /// <summary>
+        /// Stellt dem Nutzer eine Frage, die mit Ja oder nein beantwortet werden muss.
+        /// </summary>
+        /// <param name="question">Fragetext als String</param>
+        /// <returns>Ja -> true, Nein -> false</returns>
+        public static bool YesOrNoPrompt(string question)
+        {
+            Console.WriteLine($"{question} (Y/J or N )");
+            while (true)
+            {
+                var key = Console.ReadKey(true).Key;
+
+                if (key == ConsoleKey.Y || key == ConsoleKey.J)
+                    return true;
+                else if (key == ConsoleKey.N)
+                    return false;
+                else
+                    ShowMessage("menu.wrong.keypress");
+            }
+        }
+        public static void ShowMessage(string messageKey, string[]? contents = null)
+        {
+            if (contents != null && contents.Length > 0)
+            {
+                object[] args = new object[contents.Length];
+                for (int i = 0; i < contents.Length; i++)
+                {
+                    args[i] = contents[i];
+                }
+                Console.WriteLine(string.Format(Localization.T(messageKey), args));
+            }
+            else
+            {
+                Console.WriteLine(Localization.T(messageKey));
+            }
+        }
+        public static string Handlekeypress(bool q = false)
+        {
+            if (q)
+                Console.WriteLine(Localization.T("menu.go.back.q"));
+            Console.Write(Localization.T("pointer"));
+            var key = Console.ReadKey(true).KeyChar.ToString();
+            return key;
+        }
+        public static string Handleinput(List<string>? list = null,bool q = false, bool a = false)
+        {
+            for (int i = 0; list != null && i < list.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}. {list[i]}");
+            }
+            if (q)
+                Console.WriteLine(Localization.T("menu.go.back.q"));
+            if (a)
+                Console.WriteLine(Localization.T("picker.all.a"));
+            Console.Write(Localization.T("pointer"));
+            string input;
+            input = Console.ReadLine()?.Trim() ?? "";
+            Console.WriteLine(input);
+            return input;
+        }
+        /// <summary>
+        /// Gibt dem Nutzer eine Liste an Optionen zurück, die sich im angegebenen Verzeichnis befinden. Je nach Parametern können auch eine "Vanilla" und eine "All" Option angezeigt werden. Die "Vanilla" Option ermöglicht es, zum Vanilla Zustand zurückzukehren, während die "All" Option alle verfügbaren Mods auswählt. Der aktuell aktive Mod wird ebenfalls berücksichtigt, um zu verhindern, dass er erneut ausgewählt wird. Der Nutzer kann auch jederzeit mit "Q" abbrechen und zum vorherigen Menü zurückkehren.
+        /// </summary>
+        /// <param name="question"></param> 
+        /// <param name="directory"></param>
+        /// <param name="activeoption"></param>
+        /// <param name="allowvanilla"></param>
+        /// <param name="allowall"></param>
+        /// <returns>Name der Option, die gewählt werden kann, Exit, All, no entries wenn das Verzeichnis nicht existiert oder Leer ist</returns>
+
+        internal static string Picker(string question, string? directory = null, string? activeoption = null, bool allowvanilla = false, bool allowall = false, bool allowsame = false)
+        {
+            Sonstiges.DebugText("Picker active");
+            if (!Directory.Exists(directory))
+            {
+                return "no entries"; //keine einträge vorhanden, da Ordner nicht existiert
+            }
+
+            string[] dirs = Directory.GetDirectories(directory); //full paths
+            if (dirs.Length == 0)
+            {
+                return "no entries"; //keine einträge vorhanden, da Ordner leer ist
+            }
+
+            Console.WriteLine("\n" + Localization.T(question)); //Frage, welcher Mod zurückgegeben werden soll
+            if (activeoption != "Vanilla" & allowvanilla)
+                Console.WriteLine("0: " + Localization.T("mods.menu.disable.mods")); //vanilla option, only if a mod is active and vanilla is allowed
+            for (int i = 0; i < dirs.Length; i++)
+            {
+                dirs[i] = Path.GetRelativePath(directory, dirs[i]); //only the name of the mod
+                Console.WriteLine($"{i + 1}: " + dirs[i]);
+            }
+            
+            string option;
+            while (true)
+            {
+                string input = Handleinput(q: true, a: true);
+
+                if (input.Equals("Q", StringComparison.OrdinalIgnoreCase)) // user wants to go back/cancel
+                {
+                    ShowMessage("picker.canceled");
+                    WaitForKeypress();
+                    return "exit";
+                }
+                else if (input.Equals("A", StringComparison.OrdinalIgnoreCase)) // all option, only if allowed
+                {
+                    if (allowall)
+                    {
+                        return "all";
+                    }
+                    else
+                    {
+                        ShowMessage("menu.wrong.keypress");
+                        continue;
+                    }
+                }
+
+                if (int.TryParse(input, out int index) && index >= 0 && index <= dirs.Length) // valid index
+                {
+                    if (index == 0 && activeoption != "Vanilla" && allowvanilla) // vanilla option selected
+                    {
+                        option = "Vanilla";
+                    }
+                    else if (index == 0) // vanilla option selected but not allowed or already active
+                    {
+                        ShowMessage("menu.wrong.keypress");
+                        continue; // ask for input again
+                    }
+                    else // mod option selected
+                    {
+                        option = dirs[index - 1];
+                    }
+
+                    if (option == activeoption && allowsame == false) // selected option is already active, and selecting the same option is not allowed
+                    {
+                        ShowMessage("picker.option.same");
+                        continue; // ask for input again
+                    }
+
+                    break; // valid option selected, exit loop
+                }
+                else // invalid input
+                {
+                    ShowMessage("menu.wrong.keypress");
+                }
+            }
+            Sonstiges.DebugText($"Modpicker return: {option}");
+            return option; //returns the selected option
+        }
+
     }
 }
 

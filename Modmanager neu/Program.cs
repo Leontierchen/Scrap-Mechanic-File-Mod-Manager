@@ -12,9 +12,16 @@ namespace Modmanager_neu
         public static readonly string AppName = "Scrap Mechanic file mod Manager";
         public static readonly string AppVersion = "0.1";
         public static readonly string Masterlanguage = "de";
-        public static bool IsDebug { get; set; }
+        public static bool IsDebug { get; set; } = true;
         public static bool langfallback = false;
+
         public static Config config { get; set; } = null!;
+        
+        
+        public static readonly string logspath = Path.Combine(AppContext.BaseDirectory, "logs");
+        public static readonly string languagepath = Path.Combine(AppContext.BaseDirectory, "language");
+        
+
         // Logging helpers
         private static StringWriter? _logBuffer;
         private static TextWriter? _originalOut;
@@ -24,6 +31,7 @@ namespace Modmanager_neu
 
         static void Main()
         {
+
             config = LoadConfig() ?? new Config();
             IsDebug = config.Debug;
             // Ensure console uses UTF-8 so Umlauts (Ä Ö Ü etc.) are displayed correctly
@@ -46,8 +54,9 @@ namespace Modmanager_neu
             var tee = new Sonstiges.TeeTextWriter(_originalOut, _logBuffer);
             Console.SetOut(tee);
             Console.SetError(tee);
-            Console.WriteLine("[Debug] Logging initialized.");
-            Console.WriteLine("[Debug] ----------- start config -----------");
+
+            Sonstiges.DebugText("Logging initialized.");
+            Sonstiges.DebugText("----------- start config -----------");
             if (config != null)
             {
                 Console.WriteLine("[Debug] Geladene Konfiguration:");
@@ -73,7 +82,7 @@ namespace Modmanager_neu
             // ----------- ende config -----------
             // ----------- start main -----------
             if (IsDebug)
-                Menu.WaitForKeypress();
+                IO.WaitForKeypress();
             Menu.Start();
             if (IsDebug)
                 WriteLogAndExit(2, "0"); // exit code 2 = Debug mode
@@ -81,7 +90,7 @@ namespace Modmanager_neu
                 WriteLogAndExit(0, "0"); // exit code 0 = log and exit immediately
             // ----------- ende main -----------
         }
-        public static void WriteLogAndExit(int exitCode, string ex)
+        public static void WriteLogAndExit(int exitCode, string ex = "")
         {
             // Ausgabe des Exit-Grunds
             string cause;
@@ -108,6 +117,7 @@ namespace Modmanager_neu
                     9 => string.Format(Localization.T("exit.code.9"), ex), // Extract zip error
                     10 => string.Format(Localization.T("exit.code.10"), ex), // Write file error
                     11 => string.Format(Localization.T("exit.code.11"), ex), // Rename mod error
+                    12 => string.Format(Localization.T("exit.code.12"), ex), // Update Mod error
 
                     30 => Localization.T("placeholder"), // placeholder for future errors
                     40 => string.Format(Localization.T("placeholder"), ex), // placeholder for future errors with details
@@ -117,7 +127,7 @@ namespace Modmanager_neu
             }
             //  Ausgabe des Grundes vor dem Log
             if (exitCode > 3)
-                Console.WriteLine(Localization.T("program.exit.error.occurred"));
+                IO.ShowMessage("program.exit.error.occurred");
 
             if (!string.IsNullOrEmpty(cause))
                 Console.WriteLine("-->" + cause);
@@ -126,11 +136,26 @@ namespace Modmanager_neu
             {
                 // Flush Console writers
                 Console.Out.Flush();
-
-                string logsDir = Path.Combine(AppContext.BaseDirectory, "logs");
-                Directory.CreateDirectory(logsDir);
+                if (Directory.Exists(logspath))
+                {
+                    // Lösche alte Logs, behalte aber die letzten 10
+                    var oldLogs = Directory.GetFiles(logspath, "run_*.log")
+                        .Select(f => new FileInfo(f))
+                        .OrderByDescending(f => f.CreationTime)
+                        .Skip(10);
+                    foreach (var log in oldLogs)
+                    {
+                        try
+                        {
+                            log.Delete();
+                        }
+                        catch { }
+                    }
+                }
+                else
+                    Directory.CreateDirectory(logspath);
                 string filename = $"run_{DateTime.Now:yyyyMMdd_HHmmss}.log";
-                string path = Path.Combine(logsDir, filename);
+                string path = Path.Combine(logspath, filename);
 
                 // Write buffer content to file
                 var content = _logBuffer?.ToString() ?? string.Empty;
@@ -144,7 +169,7 @@ namespace Modmanager_neu
                 if (_originalErr != null)
                     Console.SetError(_originalErr);
 
-                Console.WriteLine(string.Format(Localization.T("log.written"), path));
+                IO.ShowMessage("log.written", [path]);
             }
             catch
             {
@@ -155,8 +180,8 @@ namespace Modmanager_neu
                 // Pause nur bei Fehlern oder im Debug-Modus
                 if (exitCode > 0)
                 {
-                    Console.WriteLine(Localization.T("exit.code.1")); // press enter to exit
-                    Console.ReadLine();
+                    IO.ShowMessage("exit.code.1"); // press enter to exit
+                    IO.Handleinput();
                 }
                 else
                     Thread.Sleep(1000);
@@ -250,10 +275,10 @@ namespace Modmanager_neu
                         if (!Directory.Exists(input)) //ask user for steam folder
                         {
                             int tries = 3;
-                            Console.WriteLine(Localization.T("enter.steam.user.promt"));
+                            IO.ShowMessage("enter.steam.user.promt");
                             while (tries != 0)
                             {
-                                var userinput = Console.ReadLine() ?? string.Empty;
+                                var userinput = IO.Handleinput();
                                 string userinput2 = Path.Combine(steampath, userinput);
                                 if (Directory.Exists(userinput))
                                 {
@@ -267,7 +292,7 @@ namespace Modmanager_neu
                                 }
                                 else
                                 {
-                                    Console.WriteLine(string.Format(Localization.T("wrong.folder.input"), tries.ToString()));
+                                    IO.ShowMessage("wrong.folder.input", [tries.ToString()]);
                                     tries--;
                                 }
                             }
@@ -317,7 +342,7 @@ namespace Modmanager_neu
                     var baseDir = AppContext.BaseDirectory;
                     var langDir = Path.Combine(baseDir, "language");
                     var file = Path.Combine(langDir, Masterlanguage + ".json");
-                    
+
                     if (!File.Exists(file))
                     {
                         Sonstiges.DebugText($"Master-Sprachdatei ({Masterlanguage}) nicht gefunden!");
@@ -344,7 +369,7 @@ namespace Modmanager_neu
                     var baseDir = AppContext.BaseDirectory;
                     var langDir = Path.Combine(baseDir, "language");
                     var file = Path.Combine(langDir, lang + ".json");
-                    
+
                     if (!File.Exists(file))
                     {
                         if (lang != Masterlanguage)
@@ -506,7 +531,7 @@ namespace Modmanager_neu
                 Console.WriteLine($"\nBitte geben Sie die Übersetzung für '{_lang}' ein:");
                 Console.Write("> ");
 
-                string? userInput = Console.ReadLine();
+                string? userInput = IO.Handleinput();
                 
                 if (string.IsNullOrWhiteSpace(userInput))
                 {
@@ -541,7 +566,7 @@ namespace Modmanager_neu
                 for (int i = 0; i < masterArray.Length; i++)
                 {
                     Console.Write($"[{i}] > ");
-                    string? userInput = Console.ReadLine();
+                    string? userInput = IO.Handleinput();
 
                     if (string.IsNullOrWhiteSpace(userInput))
                     {
@@ -567,11 +592,9 @@ namespace Modmanager_neu
                 {
                     _map ??= [];
 
-                    var baseDir = AppContext.BaseDirectory;
-                    var langDir = Path.Combine(baseDir, "language");
-                    Directory.CreateDirectory(langDir);
+                    Directory.CreateDirectory(languagepath);
                     
-                    var file = Path.Combine(langDir, _lang + ".json");
+                    var file = Path.Combine(languagepath, _lang + ".json");
 
                     // Speichere die aktuelle Map
                     JsonSerializerOptions serializerOptions = new() { WriteIndented = true };
@@ -596,7 +619,7 @@ namespace Modmanager_neu
                     var baseDir = AppContext.BaseDirectory;
                     var langDir = Path.Combine(baseDir, "language");
                     Directory.CreateDirectory(langDir);
-                    
+
                     var file = Path.Combine(langDir, _lang + ".json");
 
                     // Speichere die aktuelle Map

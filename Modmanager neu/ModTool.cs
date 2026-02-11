@@ -8,13 +8,13 @@ namespace Modmanager_neu
     [SupportedOSPlatform("windows")]
     internal class Modtool
     {
-        private static readonly string gamepath = GetGamePath();
-        private static readonly string modtool = "Mod_manager_by_leon"; // relativ zum Spielordner
-        private static readonly string modversionfile = "version.txt";
-        private static readonly string modspath = Path.Combine(gamepath, modtool, "mods");
-        private static readonly string vanillapath = Path.Combine(gamepath, modtool, "vanilla");
-        private static readonly string contentsfile = "contents.txt";
-        private static readonly string modlistsfile = "modlist.txt";
+        public static readonly string gamepath = GetGamePath();
+        public static readonly string modtool = "Mod_manager_by_leon"; // relativ zum Spielordner
+        public static readonly string modversionfile = "version.txt";
+        public static readonly string modspath = Path.Combine(gamepath, modtool, "mods");
+        public static readonly string vanillapath = Path.Combine(gamepath, modtool, "vanilla");
+        public static readonly string contentsfile = "contents.txt";
+        public static readonly string modlistsfile = "modlist.txt";
         public static string GetCurrentMod()
         {
             Sonstiges.DebugText("Starte Ermittlung des aktuellen Mods...");
@@ -61,29 +61,32 @@ namespace Modmanager_neu
             string gamepath = string.Empty;
             var folders = SteamLibraryFinder.GetAllSteamGameFolders();
 
-            foreach (var folder in folders)
+            if (folders != null)
             {
-                gamepath = Path.Combine(folder, "Scrap Mechanic");
-                Sonstiges.DebugText("Überprüfe Pfad: " + gamepath);
-                if (Directory.Exists(gamepath))
+                foreach (var folder in folders)
                 {
-                    Sonstiges.DebugText("Spielpfad gefunden: " + gamepath);
-                    break;
-                }
-                else
-                {
-                    gamepath = string.Empty;
+                    gamepath = Path.Combine(folder, "Scrap Mechanic");
+                    Sonstiges.DebugText("Überprüfe Pfad: " + gamepath);
+                    if (Directory.Exists(gamepath))
+                    {
+                        Sonstiges.DebugText("Spielpfad gefunden: " + gamepath);
+                        break;
+                    }
+                    else
+                    {
+                        gamepath = string.Empty;
+                    }
                 }
             }
             if (string.IsNullOrEmpty(gamepath))
             {
                 Sonstiges.DebugText("Spielpfad nicht gefunden. Nutzereingabe");
-                Console.WriteLine(Localization.T("gamepath.notfound"));
+                IO.ShowMessage("gamepath.notfound");
                 int tries = 3;
                 while (tries > 0)
                 {
-                    Console.WriteLine(Localization.T("gamepath.promt"));
-                    string? inputPath = Console.ReadLine();
+                    IO.ShowMessage("gamepath.promt");
+                    string? inputPath = IO.Handleinput();
                     if (inputPath != null && Directory.Exists(inputPath) && File.Exists(Path.Combine(inputPath, "Release", "ScrapMechanic.exe")))
                     {
                         gamepath = inputPath;
@@ -92,7 +95,7 @@ namespace Modmanager_neu
                     }
                     else
                     {
-                        Console.WriteLine(String.Format(Localization.T("wrong.folder.input"), tries));
+                        IO.ShowMessage("wrong.folder.input", [tries.ToString()]);
                         tries--;
                     }
                 }
@@ -108,55 +111,66 @@ namespace Modmanager_neu
             return gamepath;
         }
 
-        internal static void AddMod() // menu option
+        internal static void AddMod(bool update = false, string updatename = "", string[]? updatepaths = null) // menu option
         {
             Sonstiges.DebugText("Starte hinzufügen einer neuen Mod...");
-
-            Console.WriteLine(Localization.T("mods.menu.new.mod.description"));
-            Console.WriteLine(Localization.T("mods.menu.new.mod.name.prompt"));
-            Console.WriteLine(Localization.T("menu.go.back.q"));
-            bool validname = false;
             string? modname = string.Empty;
             List<string> modslist = [];
-            while (validname == false)
+            if (update == false)
             {
-                Console.Write(Localization.T("pointer"));
-                modname = Console.ReadLine();
-                if (modname != null)
+                IO.ShowMessage("mods.menu.new.mod.description");
+                IO.ShowMessage("mods.menu.new.mod.name.prompt");
+                bool validname = false;
+                while (validname == false)
                 {
-                    switch (modname)
+                    modname = IO.Handleinput(q: true);
+                    if (modname != null)
                     {
-                        case "Q" or "q":
-                            Sonstiges.DebugText("Modnamen Eingabe abgebrochen durch Nutzer.");
-                            return;
-                        case "Vanilla":
-                            Console.WriteLine(Localization.T("mods.menu.new.mod.name.invalid"));
-                            break;
-                        case "":
-                            Console.WriteLine(Localization.T("mods.menu.new.mod.name.empty"));
-                            break;
-                        case string s when s.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0:
-                            Console.WriteLine(Localization.T("mods.menu.new.mod.name.invalid"));
-                            break;
-                        default:
-                            if (Directory.Exists($@"{modspath}\{modname}"))
-                            {
-                                Console.WriteLine(Localization.T("mods.menu.new.mod.name.exists"));
+                        switch (modname)
+                        {
+                            case "Q" or "q":
+                                Sonstiges.DebugText("Modnamen Eingabe abgebrochen durch Nutzer.");
+                                return;
+                            case "Vanilla":
+                                IO.ShowMessage("mods.menu.new.mod.name.invalid");
                                 break;
-                            }
-                            else
-                            {
-                                validname = true;
+                            case "":
+                                IO.ShowMessage("mods.menu.new.mod.name.empty");
                                 break;
-                            }
+                            case string s when s.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0:
+                                IO.ShowMessage("mods.menu.new.mod.name.invalid");
+                                break;
+                            default:
+                                if (Directory.Exists($@"{modspath}\{modname}"))
+                                {
+                                    IO.ShowMessage("mods.menu.new.mod.name.exists");
+                                    break;
+                                }
+                                else
+                                {
+                                    validname = true;
+                                    break;
+                                }
+                        }
+                    }
+                    else
+                    {
+                        IO.ShowMessage("mods.menu.new.mod.name.invalid");
                     }
                 }
+                Sonstiges.DebugText("Modname akzeptiert: " + modname);
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(updatename) || updatepaths == null)
+                    WriteLogAndExit(12, "Modname oder Modpfade für Update sind null oder leer."); //Fehler, wenn der Modname oder die Modpfade für ein Update nicht übergeben wurden
                 else
                 {
-                    Console.WriteLine(Localization.T("mods.menu.new.mod.name.invalid"));
+                    modname = updatename;
+                    modslist = [.. updatepaths!];
                 }
+                Sonstiges.DebugText("Modupdate für Mod: " + modname);
             }
-            Sonstiges.DebugText("Modname akzeptiert: " + modname);
             Sonstiges.DebugText("Erstelle Directory.");
             string modnamepath = $@"{modspath}\{modname}";
             string modfiles = $@"{modnamepath}\files";
@@ -164,79 +178,73 @@ namespace Modmanager_neu
             { Directory.CreateDirectory(modfiles); }
             catch (Exception ex)
             { WriteLogAndExit(8, ex.Message); } // Fehler beim Erstellen des Modverzeichnisses, wahrscheinlich ungültige Zeichen im Modnamen, obwohl vorher geprüft.
-
-            bool done = false;
-            while (done == false)
+            if (update == false)
             {
-                bool validpath = false;
-
-                string type = "none";
-                Console.WriteLine(Localization.T("mods.menu.new.mod.path.prompt"));
-                Console.WriteLine(Localization.T("menu.go.back.q"));
-                while (validpath == false)
+                bool done = false;
+                while (done == false)
                 {
-                    Console.Write(Localization.T("pointer"));
-                    string? inputpath = Console.ReadLine();
-                    if (inputpath != null)
+                    bool validpath = false;
+                    IO.ShowMessage("mods.menu.new.mod.path.prompt");
+                    while (validpath == false)
                     {
-                        Console.WriteLine();
-                        switch (inputpath)
+                        string? inputpath = IO.Handleinput(q: true);
+                        if (inputpath != null)
                         {
-                            case "Q" or "q":
-                                Sonstiges.DebugText("[Debug] Modnamen Eingabe abgebrochen durch Nutzer.");
-                                return;
-                            case "":
-                                Console.WriteLine(Localization.T("mods.menu.new.mod.path.empty"));
-                                break;
-                            case string s when s.IndexOfAny(Path.GetInvalidPathChars()) >= 0:
-                                Console.WriteLine(Localization.T("mods.menu.new.mod.path.invalid"));
-                                break;
-                            default:
-                                if (Directory.Exists(inputpath))
-                                {
-                                    type = "directory";
-                                    validpath = true;
+                            Console.WriteLine();
+                            switch (inputpath)
+                            {
+                                case "Q" or "q":
+                                    Sonstiges.DebugText("[Debug] Modnamen Eingabe abgebrochen durch Nutzer.");
+                                    return;
+                                case "":
+                                    IO.ShowMessage("mods.menu.new.mod.path.empty");
                                     break;
-                                }
-                                else if (File.Exists(inputpath))
-                                {
-                                    type = "zip";
-                                    validpath = true;
+                                case string s when s.IndexOfAny(Path.GetInvalidPathChars()) >= 0:
+                                    IO.ShowMessage("mods.menu.new.mod.path.invalid");
                                     break;
-                                }
-                                else
-                                {
-                                    Console.WriteLine(Localization.T("mods.menu.new.mod.path.invalid"));
-                                    break;
-                                }
+                                default:
+                                    if (Directory.Exists(inputpath) || File.Exists(inputpath))
+                                    {
+                                        validpath = true;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        IO.ShowMessage("mods.menu.new.mod.path.invalid");
+                                        break;
+                                    }
+                            }
+                            modslist.Add(inputpath);
+                            if (IO.YesOrNoPrompt(Localization.T("mods.menu.new.mod.add.more.mods.question")) == false)
+                            {
+                                Sonstiges.DebugText("Mods hinzufügen fertig");
+                                done = true;
+                            }
+                            else { Sonstiges.DebugText("noch eine mod hinzufügen, fortsetzen"); }
                         }
-                        if (type == "zip")
-                        {
-                            Console.WriteLine(Localization.T("mods.menu.new.mod.extract.zip"));
-                            try
-                            { ZipFile.ExtractToDirectory(inputpath, modfiles, true); }
-                            catch (Exception ex)
-                            { WriteLogAndExit(9, ex.Message); } //Fehler beim extrahieren der zip
-                            Console.WriteLine(Localization.T("mods.menu.new.mod.extract.zip.done"));
-                        }
-                        else if (type == "directory")
-                        {
-                            Console.WriteLine(Localization.T("mods.menu.new.mod.extract.directory"));
-                            Sonstiges.Filehelper.Copy(inputpath, modfiles, true, Directory.GetFiles(inputpath, "*.*", SearchOption.AllDirectories), true);
-                            Console.WriteLine(Localization.T("mods.menu.new.mod.extract.directory.done"));
-                        }
-                        modslist.Add(inputpath);
-                        if (Menu.YesOrNoPrompt(Localization.T("mods.menu.new.mod.add.more.mods.question")) == false)
-                        {
-                            Sonstiges.DebugText("Mods hinzufügen fertig");
-                            done = true;
-                        }
-                        else { Sonstiges.DebugText("noch eine mod hinzufügen, fortsetzen"); }
+                        else { IO.ShowMessage("mods.menu.new.mod.name.invalid"); }
+
                     }
-                    else { Console.WriteLine(Localization.T("mods.menu.new.mod.name.invalid")); }
 
                 }
-
+            }
+            foreach (string item in modslist)
+            {
+                if (File.Exists(item))
+                {
+                    IO.ShowMessage("mods.menu.new.mod.extract.zip");
+                    try
+                    { ZipFile.ExtractToDirectory(item, modfiles, true); }
+                    catch (Exception ex)
+                    { WriteLogAndExit(9, ex.Message); } //Fehler beim extrahieren der zip
+                    IO.ShowMessage("mods.menu.new.mod.extract.zip.done");
+                }
+                else if (Directory.Exists(item))
+                {
+                    IO.ShowMessage("mods.menu.new.mod.extract.directory");
+                    Sonstiges.Filehelper.Copy(item, modfiles, true, Directory.GetFiles(item, "*.*", SearchOption.AllDirectories), true);
+                    IO.ShowMessage("mods.menu.new.mod.extract.directory.done");
+                }
             }
             //document all mods and files into text files inside the mod folder
             File.WriteAllLines(Path.Combine(modnamepath, modlistsfile), [.. modslist]);
@@ -247,26 +255,29 @@ namespace Modmanager_neu
             }
 
             File.WriteAllLines(Path.Combine(modnamepath, contentsfile), files);
-            Console.WriteLine(String.Format(Localization.T("mods.menu.new.mod.finished"), modname, Localization.TArray("mods.menu.options")[0]));
-            Menu.WaitForKeypress();
+            if (update == false)
+            {
+                IO.ShowMessage("mods.menu.new.mod.finished", [modname!, Localization.TArray("mods.menu.options")[0]]);
+                IO.WaitForKeypress();
+            }
         }
         internal static void SwitchMod() // menu option
         {
             Sonstiges.DebugText("Starte Wechsel des aktiven Mods...");
             string activemod = GetCurrentMod(); //gibt den aktuell aktiven mod zurück, oder "Vanilla" wenn kein mod aktiv ist
-            string option = Picker("mods.menu.change.active.mod.prompt", modspath, activemod, true); //gibt den ausgewählten mod zurück
+            string option = IO.Picker("mods.menu.change.active.mod.prompt", modspath, activemod, true); //gibt den ausgewählten mod zurück
             Sonstiges.DebugText($"Activemod: {activemod} ... Option: {option}");
             if (string.IsNullOrEmpty(option)||option == "exit")
                 return; 
             else if (option == "no enries")
             {
-                Console.WriteLine(Localization.T("mods.menu.no.mods"));
-                Menu.WaitForKeypress();
+                IO.ShowMessage("mods.menu.no.mods");
+                IO.WaitForKeypress();
                 return;
             }
             else
             {
-                if (option == "Vanilla" & activemod != "Vanilla") //vanilla restore
+                if (option == "Vanilla" && activemod != "Vanilla") //vanilla restore
                 {
                     ModToVanilla(activemod);
                     try
@@ -292,82 +303,152 @@ namespace Modmanager_neu
                     SetCurrentMod(option);
                 }
             }
-            Menu.WaitForKeypress();
+            IO.WaitForKeypress();
             return;
         }
         internal static void UpdateMod() // menu option
         {
-            //string activetmod = GetCurrentMod();
-            //string option = Picker("mods.menu.update.mod.prompt", modspath, activetmod, false, true, true);
-            //if (string.IsNullOrEmpty(option) || option == "exit")
-            //    return;
-            //else if (option == "no enries")
-            //{
-            //    Console.WriteLine(Localization.T("mods.menu.no.mods"));
-            //}
-            //else
-            //{
-            //    if (option == "all")
-            //    {
-            //        string[] mods = Directory.GetDirectories(modspath);
-            //        foreach (string mod in mods)
-            //        {
-            //            string modname = Path.GetRelativePath(modspath, mod);
-            //            Console.WriteLine(string.Format(Localization.T("mods.menu.update.mod.progress"), modname));
-            //            ModToVanilla(modname);
-            //            VanillaToMod(modname);
-            //            Console.WriteLine(string.Format(Localization.T("mods.menu.update.mod.done"), modname));
-            //        }
-            //        Console.WriteLine(Localization.T("mods.menu.update.mod.all.finished"));
-            //    }
-            //    else
-            //    {
-            //        Console.WriteLine(string.Format(Localization.T("mods.menu.update.mod.progress"), option));
-            //        ModToVanilla(option);
-            //        VanillaToMod(option);
-            //        Console.WriteLine(string.Format(Localization.T("mods.menu.update.mod.done"), option));
-            //    }
+            string activemod = GetCurrentMod();
+            string option = IO.Picker("mods.menu.update.prompt", modspath, activemod, false, false, true);
+            if (string.IsNullOrEmpty(option) || option == "exit")
+                return;
+            else if (option == "no enries")
+                IO.ShowMessage("mods.menu.no.mods");
+            else
+            {
+                string[] modpaths = [];
+                try
+                {
+                    modpaths = File.ReadAllLines(Path.Combine(modspath, option, modlistsfile));
+                }
+                catch (Exception ex)
+                {
+                    WriteLogAndExit(10, ex.Message); //read file error
+                }
+                if (modpaths.Length == 0) //Abfrage, ob überhaupt Pfade zum Mod hinterlegt wurden
+                {
+                    IO.ShowMessage("mods.menu.update.check.no.paths"); //wenn keine Pfade hinterlegt wurden, kann nicht aktualisiert werden, ende hier
+                    IO.WaitForKeypress();
+                    return;
+                }
+                else
+                {
+                    IO.ShowMessage("mods.menu.update.progress.start", [option]);
 
+                    List<string> updatepaths = [];
+                    for (int i = 0; i < modpaths.Length; i++) //prüft alle pfade, die hinterlegt wurden
+                    {
+                        bool isvalid = false;
+                        if (IO.YesOrNoPrompt(Localization.T("mods.menu.update.check.paths.prompt") + "\n--"+ modpaths[i]+"\n")) //user sagt ja, pfad stimmt
+                        {
+                            if (!File.Exists(modpaths[i]) && !Directory.Exists(modpaths[i])) //pfad existiert aber nicht mehr
+                            {
+                                IO.ShowMessage("mods.menu.update.check.pathnolongerexists");
+                            }
+                            else //pfad existiert noch, füge zur update liste hinzu
+                            {
+                                isvalid = true;
+                                updatepaths.Add(modpaths[i]);
+                            }
+                        }
+                        else //user sagt nein, pfad stimmt nicht
+                        {
+                            if (!IO.YesOrNoPrompt(Localization.T("mods.menu.update.check.asktofixpath"))) //fragen, ob der Pfad korrigiert werden soll
+                                isvalid = true; //nein, entferne ihn
+                        }
+                        if (isvalid == false) //pfad muss aktualisiert werden
+                        {
+                            bool validpath = false;
+                            while (validpath == false)
+                            {
+                                IO.ShowMessage("mods.menu.new.mod.path.prompt");
+                                string? inputpath = IO.Handleinput(q: true);
+                                if (inputpath != null)
+                                {
+                                    Console.WriteLine();
+                                    switch (inputpath)
+                                    {
+                                        case "Q" or "q":
+                                            Sonstiges.DebugText("Modnamen Eingabe abgebrochen durch Nutzer."); //eingabe abgebrochen, kein pfad wird in update liste geschrieben
+                                            return;
+                                        case "":
+                                            IO.ShowMessage("mods.menu.new.mod.path.empty");
+                                            break;
+                                        case string s when s.IndexOfAny(Path.GetInvalidPathChars()) >= 0:
+                                            IO.ShowMessage("mods.menu.new.mod.path.invalid");
+                                            break;
+                                        default:
+                                            if (Directory.Exists(inputpath) || File.Exists(inputpath))
+                                            {
+                                                validpath = true; // eingabe ok, füge zur liste hinzu
+                                                updatepaths.Add(inputpath);
+                                                break;
+                                            }
+                                            else
+                                            {
+                                                IO.ShowMessage("mods.menu.new.mod.path.invalid"); //eingabe ungültig, neu versuchen
+                                                break;
+                                            }
+                                    }
+                                }
+                                else
+                                    IO.ShowMessage("mods.menu.new.mod.path.invalid");
+                            }
+                        }
+                    }
+                    IO.ShowMessage("mods.menu.update.check.paths.done");
+                    foreach (string item in updatepaths)
+                    {
+                        Console.WriteLine("-- " + item);
+                    }
+                    if (IO.YesOrNoPrompt(Localization.T("mods.menu.update.confirm")))// alle pfade geprüft, bestätigung bevor fortgefahren wird
+                    {
+                        Sonstiges.DebugText("Alle Pfade geprüft. Starte Update...");
 
+                        IO.ShowMessage("mods.menu.update.progress.running");
+                        if (option == activemod) //wenn der zu aktualisierende Mod an ist, wird er zuerst deinstalliert und der Vanilla zustand wiederhergestellt
+                        {
+                            IO.ShowMessage("mods.menu.update.recover.vanilla");
+                            ModToVanilla(option);
+                            IO.ShowMessage("mods.menu.update.recover.vanilla.done");
+                        }
+                        Sonstiges.Filehelper.DeleteDirectory(Path.Combine(modspath, option), true); // altes Modverzeichnis löschen
+                        AddMod(true, option, [.. updatepaths]); //neuen Mod mit den aktualisierten Pfaden hinzufügen, dabei wird der alte Modname und die neuen Pfade übergeben. Clean install
+                        if (option == activemod) //wenn der zu aktualisierende Mod an ist, wird er nach dem Update wieder aktiviert
+                        {
+                            IO.ShowMessage("mods.menu.update.reactivate.mod");
+                            VanillaToMod(option);
+                            IO.ShowMessage("mods.menu.update.reactivate.mod.done");
+                        }
 
+                        IO.ShowMessage("mods.menu.update.progress.finished", [option]);
 
-
-
-
-
-
-
-
-
-
-
-
-            //}
-            Menu.WaitForKeypress();
+                    }
+                }
+            }
+            IO.WaitForKeypress();
             return;
         }
         internal static void RenameMod() // menu option
         {
             string activemod = GetCurrentMod();
-            string option = Picker("mods.menu.rename.mod.prompt", modspath, activemod, false, false, true);
+            string option = IO.Picker("mods.menu.rename.mod.prompt", modspath, activemod, false, false, true);
             string? newname = string.Empty;
             if (string.IsNullOrEmpty(option) || option == "exit") //Abfrage, ob gültige Option ausgewählt wurde, oder ob Nutzer zurückgehen wollte
                 return;
             else if (option == "no enries") // Abfrage, ob überhaupt Mods zum umbenennen vorhanden sind
             {
-                Console.WriteLine(Localization.T("mods.menu.no.mods"));
-                Menu.WaitForKeypress();
+                IO.ShowMessage("mods.menu.no.mods");
+                IO.WaitForKeypress();
                 return;
             }
             else
             {
-                Console.WriteLine(Localization.T("mods.menu.rename.mod.name.prompt"));
-                Console.WriteLine(Localization.T("menu.go.back.q"));
+                IO.ShowMessage("mods.menu.rename.mod.name.prompt");
                 bool validname = false;
                 while (validname == false) // Eingabeschleife für neuen Modnamen, prüft auf ungültige Zeichen, leeren Namen, "Vanilla" und bestehende Modnamen. Abbruch mit Q möglich.
                 {
-                    Console.Write(Localization.T("pointer"));
-                    newname = Console.ReadLine();
+                    newname = IO.Handleinput(q: true);
                     if (newname != null)
                     {
                         switch (newname)
@@ -376,18 +457,18 @@ namespace Modmanager_neu
                                 Sonstiges.DebugText("Modnamen Eingabe abgebrochen durch Nutzer.");
                                 return;
                             case "Vanilla":
-                                Console.WriteLine(Localization.T("mods.menu.new.mod.name.invalid"));
+                                IO.ShowMessage("mods.menu.new.mod.name.invalid");
                                 break;
                             case "":
-                                Console.WriteLine(Localization.T("mods.menu.new.mod.name.empty"));
+                                IO.ShowMessage("mods.menu.new.mod.name.empty");
                                 break;
                             case string s when s.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0:
-                                Console.WriteLine(Localization.T("mods.menu.new.mod.name.invalid"));
+                                IO.ShowMessage("mods.menu.new.mod.name.invalid");
                                 break;
                             default:
                                 if (Directory.Exists($@"{modspath}\{newname}"))
                                 {
-                                    Console.WriteLine(Localization.T("mods.menu.new.mod.name.exists"));
+                                    IO.ShowMessage("mods.menu.new.mod.name.exists");
                                     break;
                                 }
                                 else
@@ -399,17 +480,19 @@ namespace Modmanager_neu
                     }
                     else
                     {
-                        Console.WriteLine(Localization.T("mods.menu.new.mod.name.invalid"));
+                        IO.ShowMessage("mods.menu.new.mod.name.invalid");
                     }
                 }
                 Sonstiges.DebugText("Neuer Modname akzeptiert: " + newname);
                 try
                 {
-                    if (newname != null)
+                    if (!String.IsNullOrEmpty(newname))
+                    {
                         Directory.Move(Path.Combine(modspath, option), Path.Combine(modspath, newname));
+                        IO.ShowMessage("mods.menu.rename.mod.done", [option, newname]);
+                    }
                     else
                         WriteLogAndExit(11, "Neuer Modname ist null trotz prüfung."); 
-                    Console.WriteLine(string.Format(Localization.T("mods.menu.rename.mod.done"), option, newname));
                 }
                 catch (Exception ex)
                 { WriteLogAndExit(11, ex.Message); } //Fehler beim umbenennen des Modordners
@@ -423,7 +506,7 @@ namespace Modmanager_neu
         {
             Sonstiges.DebugText("Starte Entfernen eines Mods...");
             string activemod = GetCurrentMod();
-            string option = Picker("mods.menu.remove.mod.prompt",modspath,activemod,false,true,true);
+            string option = IO.Picker("mods.menu.remove.mod.prompt",modspath,activemod,false,true,true);
             Sonstiges.DebugText($"Activemod: {activemod} ... Option: {option}");
             if (string.IsNullOrEmpty(option)||option=="exit")
                 return;
@@ -431,7 +514,7 @@ namespace Modmanager_neu
             {
                 if (option == "all")
                 { 
-                    if (Menu.YesOrNoPrompt(Localization.T("mods.menu.remove.mod.all.warn")))
+                    if (IO.YesOrNoPrompt(Localization.T("mods.menu.remove.mod.all.warn")))
                     {
                         if (activemod != "Vanilla")
                         {
@@ -441,17 +524,17 @@ namespace Modmanager_neu
                         string[] mods = Directory.GetDirectories(modspath);
                         foreach (string mod in mods)
                         {
-                            Console.WriteLine(string.Format(Localization.T("mods.menu.remove.mod.progress"),Path.GetRelativePath(modspath,mod)));
+                            IO.ShowMessage("mods.menu.remove.mod.progress", [Path.GetRelativePath(modspath, mod)]);
                             Sonstiges.Filehelper.DeleteDirectory(mod, true);
-                            Console.WriteLine(string.Format(Localization.T("mods.menu.remove.mod.done"), Path.GetRelativePath(modspath, mod)));
+                            IO.ShowMessage("mods.menu.remove.mod.done", [Path.GetRelativePath(modspath, mod)]);
                         }
-                        Console.WriteLine(Localization.T("mods.menu.remove.mod.all.finished"));
-                        Menu.WaitForKeypress();
+                        IO.ShowMessage("mods.menu.remove.mod.all.finished");
+                        IO.WaitForKeypress();
                         return;
                     }
                     else
                     {
-                        Menu.WaitForKeypress();
+                        IO.WaitForKeypress();
                         return;
                     }
                 }
@@ -460,22 +543,22 @@ namespace Modmanager_neu
                     if (option == activemod)
 
                     {
-                        if (Menu.YesOrNoPrompt(Localization.T("mods.menu.remove.mod.active.warn")))
+                        if (IO.YesOrNoPrompt(Localization.T("mods.menu.remove.mod.active.warn")))
                         {
                             ModToVanilla(activemod);
                             SetCurrentMod("Vanilla");
                         }
                         else
                         {
-                            Menu.WaitForKeypress();
+                            IO.WaitForKeypress();
                             return;
                         }
                     }
                     string modpath = Path.Combine(modspath, option);
-                    Console.WriteLine(string.Format(Localization.T("mods.menu.remove.mod.progress"), option));
+                    IO.ShowMessage("mods.menu.remove.mod.progress", [option]);
                     Sonstiges.Filehelper.DeleteDirectory(modpath, true);
-                    Console.WriteLine(string.Format(Localization.T("mods.menu.remove.mod.done"), option));
-                    Menu.WaitForKeypress();
+                    IO.ShowMessage("mods.menu.remove.mod.done", [option]);
+                    IO.WaitForKeypress();
                     return;
                 }
             }
@@ -488,7 +571,7 @@ namespace Modmanager_neu
             //vanillabackup
             Sonstiges.DebugText($"Lese Datei: {Path.Combine(modpath, contentsfile)}");
             string[] modfiles = File.ReadAllLines(Path.Combine(modpath, contentsfile)); //relative paths
-            Console.WriteLine(Localization.T("mods.menu.vanillatomod.start"));
+            IO.ShowMessage("mods.menu.vanillatomod.start");
             List<string> vanillafiles = [];
             Sonstiges.DebugText("Erstelle Database für Vanillafiles, die gesichert werden müssen");
             foreach (string item in modfiles)
@@ -512,10 +595,10 @@ namespace Modmanager_neu
                 WriteLogAndExit(10, ex.Message); //write file error
             }
             Sonstiges.Filehelper.Move(gamepath, Path.Combine(vanillapath, "files"), false, [.. vanillafiles], true, true);
-            Console.WriteLine(Localization.T("mods.menu.vanillatomod.vanillasaved"));
+            IO.ShowMessage("mods.menu.vanillatomod.vanillasaved");
             //mod install
             Sonstiges.Filehelper.Move(Path.Combine(modpath, "files"), gamepath, true, modfiles, true, true);
-            Console.WriteLine(Localization.T("mods.menu.vanillatomod.done"));
+            IO.ShowMessage("mods.menu.vanillatomod.done");
         }
         static void ModToVanilla(string currentmod)
         {
@@ -524,107 +607,16 @@ namespace Modmanager_neu
             string? modpath = Path.Combine(modspath, currentmod);
             if (modpath != null && Path.Exists(modpath))
             {
-                Console.WriteLine(Localization.T("mods.menu.modtovanilla.start"));
+                IO.ShowMessage("mods.menu.modtovanilla.start");
                 Sonstiges.DebugText($"Lese Datei: {Path.Combine(modpath, contentsfile)}");
                 string[] modfiles = File.ReadAllLines(Path.Combine(modpath, contentsfile)); //relative paths
                 Sonstiges.DebugText($"Lese Datei: {Path.Combine(vanillapath, contentsfile)}");
                 string[] vanillafiles = File.ReadAllLines(Path.Combine(vanillapath, contentsfile)); //relative paths
                 Sonstiges.Filehelper.Move(gamepath, Path.Combine(modpath, "files"), true, modfiles, true, true);
-                Console.WriteLine(Localization.T("mods.menu.modtovanilla.moduninstall.done"));
+                IO.ShowMessage("mods.menu.modtovanilla.moduninstall.done");
                 Sonstiges.Filehelper.Move(Path.Combine(vanillapath, "files"), gamepath, true, vanillafiles, true, true);
-                Console.WriteLine(Localization.T("mods.menu.modtovanilla.vanillarecovery.done"));
+                IO.ShowMessage("mods.menu.modtovanilla.vanillarecovery.done");
             }
-        }
-        /// <summary>
-        /// Gibt dem Nutzer eine Liste an Optionen zurück, die sich im angegebenen Verzeichnis befinden. Je nach Parametern können auch eine "Vanilla" und eine "All" Option angezeigt werden. Die "Vanilla" Option ermöglicht es, zum Vanilla Zustand zurückzukehren, während die "All" Option alle verfügbaren Mods auswählt. Der aktuell aktive Mod wird ebenfalls berücksichtigt, um zu verhindern, dass er erneut ausgewählt wird. Der Nutzer kann auch jederzeit mit "Q" abbrechen und zum vorherigen Menü zurückkehren.
-        /// </summary>
-        /// <param name="question"></param> 
-        /// <param name="directory"></param>
-        /// <param name="activeoption"></param>
-        /// <param name="allowvanilla"></param>
-        /// <param name="allowall"></param>
-        /// <returns>Name der Option, die gewählt werden kann, Exit, All, no entries wenn das Verzeichnis nicht existiert oder Leer ist</returns>
-        internal static string Picker(string question, string directory, string? activeoption = null, bool allowvanilla = false, bool allowall = false, bool allowsame = false)
-        {
-            Sonstiges.DebugText("Picker active");
-            string option = string.Empty;
-            if (!Directory.Exists(directory))
-            {
-                return "no entries"; //keine einträge vorhanden, da Ordner nicht existiert
-            }
-
-            string[] dirs = Directory.GetDirectories(directory); //full paths
-            if (dirs.Length == 0)
-            {
-                return "no entries"; //keine einträge vorhanden, da Ordner leer ist
-            }
-
-            Console.WriteLine("\n" + Localization.T(question)); //Frage, welcher Mod zurückgegeben werden soll
-            if (activeoption != "Vanilla" & allowvanilla)
-                Console.WriteLine("0: " + Localization.T("modspath.menu.disable.mods")); //vanilla option, only if a mod is active and vanilla is allowed
-            for (int i = 0; i < dirs.Length; i++)
-            {
-                dirs[i] = Path.GetRelativePath(modspath, dirs[i]); //only the name of the mod
-                Console.WriteLine($"{i + 1}: " + dirs[i]);
-            }
-            if (allowall)
-                Console.WriteLine(Localization.T("picker.all.a")); ; //all option, only if allowed
-            Console.WriteLine(Localization.T("menu.go.back.q"));
-            while (true)
-            {
-                Console.Write(Localization.T("pointer"));
-                string input = Console.ReadLine()?.Trim() ?? "";
-
-                if (input.Equals("Q", StringComparison.OrdinalIgnoreCase)) // user wants to go back/cancel
-                {
-                    Console.WriteLine(Localization.T("picker.canceled"));
-                    Menu.WaitForKeypress();
-                    return "exit";
-                }
-                else if (input.Equals("A", StringComparison.OrdinalIgnoreCase)) // all option, only if allowed
-                {
-                    if (allowall)
-                    {
-                        return "all";
-                    }
-                    else
-                    {
-                        Console.WriteLine(Localization.T("menu.wrong.keypress"));
-                        continue;
-                    }
-                }
-                
-                if (int.TryParse(input, out int index) && index >= 0 && index <= dirs.Length) // valid index
-                {
-                    if (index == 0 && activeoption != "Vanilla" && allowvanilla) // vanilla option selected
-                    {
-                        option = "Vanilla";
-                    }
-                    else if (index == 0) // vanilla option selected but not allowed or already active
-                    {
-                        Console.WriteLine(Localization.T("menu.wrong.keypress"));
-                        continue; // ask for input again
-                    }
-                    else // mod option selected
-                    {
-                        option = dirs[index - 1];
-                    }
-
-                    if (option == activeoption && allowsame == false) // selected option is already active, and selecting the same option is not allowed
-                    {
-                        Console.WriteLine(Localization.T("picker.option.same"));
-                        continue; // ask for input again
-                    }
-
-                    break; // valid option selected, exit loop
-                }
-                else // invalid input
-                {
-                    Console.WriteLine(Localization.T("menu.wrong.keypress"));
-                }
-            }
-            Sonstiges.DebugText($"Modpicker return: {option}");
-            return option; //returns the selected option
         }
     }
 }

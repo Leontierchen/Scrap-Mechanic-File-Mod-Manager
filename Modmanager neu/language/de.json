@@ -1,6 +1,8 @@
 {
   "language.name": "Deutsch",
   "pointer": "\n> ",
+  "contact.header": "--------- Kontakt --------\n",
+  "contact.info": "Bei Fragen oder Problemen, kontaktiere mich gerne auf Discord: https://discord.gg/fxaSm3aU6W \nE-Mail: leon.nuendel@gmail.com \nGithub: https://github.com/Leontierchen",
   "enter.steam.user.promt": "Bitte geben Sie den Ordnernamen an, den sie hier finden können. C:\\Users\\(Ihr benutzername)\\AppData\\Roaming\\Axolot Games\\Scrap Mechanic\\User ",
   "wrong.folder.input": "⚠ Der angegebene Ordner ist ungültig oder existiert nicht. Bitte überprüfen Sie ihn und versuchen Sie es erneut. Noch {0} versuche ",
   "log.written": "Log geschrieben: {0}",
@@ -37,16 +39,23 @@
   "backup.deleted": "✅ Backup {0} gelöscht.",
 
   "outfit.menu.title": "Outfit Manager",
-  "outfit.menu.subtext": "Aktuell ausgewähltes Outfit: {0}",
+  "outfit.menu.subtext": "Hier kannst du deine Ingame erstellten Outfits speichern und schnell wechseln.\nAktuell ausgewähltes Outfit: {0}",
   "outfit.menu.options": [
     "Outfit speichern",
     "Outfit laden",
     "Outfit löschen"
   ],
-  "outfit.name.promt": "Bitte geben Sie den Namen für das Outfit ein:",
-  "outfit.saved": "✅ Outfit {0} gespeichert.",
-  "outfit.load": "✅ Outfit {0} geladen.",
-  "outfit.delete": "✅ Outfit {0} gelöscht.",
+  "outfit.manager.no.outfits": "⚠ Keine gespeicherten Outfits verfügbar",
+  "outfit.manager.no.selection": "⚠ Kein outfit gewählt",
+  "outfit.manager.name.promt": "Bitte gib einen Namen für das Outfit ein:",
+  "outfit.manager.name.invalid": "❌ Dieser Name ist nicht erlaubt, bitte nimm einen anderen Namen",
+  "outfit.manager.name.exists": "❌ Dieser Name ist bereits vergeben, bitte nimm einen anderen.",
+  "outfit.manager.saved": "✅ Outfit {0} gespeichert.",
+  "outfit.manager.load.prompt": "Welches Outfit soll geladen werden?",
+  "outfit.manager.loaded": "✅ Outfit {0} geladen.",
+  "outfit.manager.delete.prompt": "Welches Outfit soll gelöscht werden?",
+  "outfit.manager.deleted": "✅ Outfit {0} gelöscht.",
+
   "mods.menu.title": "Mods verwalten",
   "mods.menu.subtext": "Aktuell installierte Mod: {0}",
   "mods.menu.options": [
@@ -61,42 +70,69 @@
   "mods.menu.vanillatomod.start": "Backup der Spieldateien läuft...",
   "mods.menu.vanillatomod.vanillasaved": "Spieldateien sind gesichert. Installiere Mod dateien...",
   "mods.menu.vanillatomod.done": "✅ Moddateien installiert. Viel spaß beim Spielen! Denke daran, dass der Multiplayer eventuell nicht mehr funktioniert",
+
   "mods.menu.modtovanilla.start": "Deinstallation der Mod Dateien läuft...",
   "mods.menu.modtovanilla.moduninstall.done": "Deinstallation der Mod Dateien Abgeschlossen, stelle Originaldateien wieder her...",
   "mods.menu.modtovanilla.vanillarecovery.done": "✅ Originaldateien wiederhergestellt.",
-  "mods.menu.change.same": "❌ Die ausgewählte Option ist bereits Aktiv oder nicht verfügbar, bitte wähle eine andere",
-  "modspath.menu.disable.mods": "Vanilla (deaktiviert alle Mods)",
+
+  "mods.menu.disable.mods": "Vanilla (deaktiviert alle Mods)",
+
   "mods.menu.new.mod.description": "Hier kannst du mehrere Kompatible Mods zu einer Mod zusammen fügen und installieren. Bitte informiere dich über die Kompatibilität und die Installationsreihenfolge der einzelnen Mods, da dieses Tool nur die installation übernimmt.\nMögliche eingaben können ein Pfad zu einer .zip sein oder ein Ordnerpfad, z.B. Pfad zu einer Workshop (file mod).",
   "mods.menu.new.mod.name.prompt": "Bitte gib einen Namen für die Mod ein. (Mit Enter bestätigen) ",
   "mods.menu.new.mod.name.invalid": "❌ Dieser Name ist nicht erlaubt, bitte nimm einen anderen Namen",
   "mods.menu.new.mod.name.empty": "❌ Keine eingabe, erneut versuchen.",
   "mods.menu.new.mod.name.exists": "❌ Diese Mod existiert bereits, bitte nimm einen anderen Namen",
+
   "mods.menu.new.mod.path.prompt": "Bitte gib den Pfad zu der Mod ein (Ordnerpfad oder Dateipfad mit .zip dateinamen) \nMit Enter bestätigen.",
   "mods.menu.new.mod.path.invalid": "❌ Der angegebene Pfad ist ungültig oder existiert nicht. Bitte überprüfe ihn und versuche es erneut.",
   "mods.menu.new.mod.path.empty": "❌ Keine eingabe, erneut versuchen.",
+
   "mods.menu.new.mod.extract.zip": "Die zip Datei wird extrahiert...",
   "mods.menu.new.mod.extract.zip.done": "✅ Die zip Datei wurde erfolgreich extrahiert.",
   "mods.menu.new.mod.extract.directory": "Die Mod Dateien werden kopiert...",
   "mods.menu.new.mod.extract.directory.done": "✅ Die Mod Dateien wurden erfolgreich kopiert.",
-  "mods.menu.new.mod.add.more.mods.question": "Willst du weitere Mods hinzufügen? (J/N)",
+
+  "mods.menu.new.mod.add.more.mods.question": "Willst du weitere Mods hinzufügen?",
+
   "mods.menu.new.mod.finished": "✅ Die Mod \"{0}\" wurde erfolgreich erstellt. Jetzt kannst du sie im menü \"{1}\" aktivieren.",
+
   "mods.menu.remove.mod.prompt": "Welche Mod möchtet du löschen? (mit Enter bestätigen)",
   "mods.menu.remove.mod.active.warn": "Die ausgewählte Mod ist aktuell aktiv. Wenn du sie löschst, wird sie vorher deaktiviert. Bist du dir sicher, dass du das tun möchtest?",
   "mods.menu.remove.mod.all.warn": "⚠ Achtung, du willst alle Mods deaktivieren und löschen! Ist das richtig? Du kannst es nicht Rückgängig machen.",
   "mods.menu.remove.mod.done": "✅ Mod \"{0}\" wurde gelöscht.",
   "mods.menu.remove.mod.all.finished": "✅ Alle Mods wurden deakiviert und gelöscht.",
+
   "mods.menu.rename.mod.prompt": "Welche Mod möchtest du umbenennen? (mit Enter bestätigen)",
   "mods.menu.rename.mod.name.prompt": "Bitte gib einen neuen Namen ein. (mit Enter bestätigen) ",
-  "mods.menu.rename.mod.done": "DIe Mod \"{0}\" wurde erfolgreich zu \"{1}\" umbenannt",
-  "mods.menu.update.mod.prompt": "Welche Mod möchtest du updaten?",
+  "mods.menu.rename.mod.done": "✅ Die Mod \"{0}\" wurde erfolgreich zu \"{1}\" umbenannt",
+
+  "mods.menu.update.prompt": "Welche Mod möchtest du updaten?",
+  "mods.menu.update.progress.start": "Die Mod {0} wird geupdated...",
+  "mods.menu.update.progress.running": "update nun die Mod dateien...",
+  "mods.menu.update.progress.finished": "✅ Die Mod {0} wurde erfolgreich geupdated.",
+
+  "mods.menu.update.recover.vanilla": "Deinstalliere die Aktive Mod, bevor sie geupdated wird...",
+  "mods.menu.update.recover.vanilla.done": "✅ Die Mod wurde für das Update erfolgreich deinstalliert.",
+
+  "mods.menu.update.reactivate.mod": "Die Mod wird reaktiviert...",
+  "mods.menu.update.reactivate.mod.done": "✅ Die Mod wurde erfolgreich reaktiviert. Viel spaß beim Spielen!",
+
+  "mods.menu.update.check.no.paths": "⚠ In der Aktuellen Mod sind keine Pfade hinterlegt. Update kann also nicht durchgeführt werden.",
+  "mods.menu.update.check.paths.prompt": "Stimmt dieser Pfad der Mod Dateien noch?",
+  "mods.menu.update.check.pathnolongerexists": "❌ Der Pfad existiert nicht mehr.",
+  "mods.menu.update.check.asktofixpath": "Möchtest du den Pfad aktuallisieren? Wenn nicht, wird er entfernt.",
+  "mods.menu.update.check.paths.done": "Die überprüfung der Pfade ist abgeschlossen. Diese Pfade werden genutzt: ",
+  "mods.menu.update.confirm": "Willst du fortfahren?",
+
   "menu.go.back.esc": "\nESC) Vorheriges Menü",
   "menu.go.back.q": "\nQ) Vorheriges Menü (abbrechen)",
+  "menu.exit.esc": "\nESC) Programm beenden",
+  "menu.wrong.keypress": "❌ Ungültige eingabe. Bitte andere Taste drücken",
+
   "picker.all.a": "\nA) Alle auswählen",
   "picker.canceled": "Auswahl abgebrochen...",
   "picker.option.same": "❌Auswahl ist bereits aktiv, bitte wähle eine andere Option",
-  "menu.exit.esc": "\nESC) Programm beenden",
-  "program.exit": "Programm wird beendet...",
-  "menu.wrong.keypress": "❌ Ungültige eingabe. Bitte andere Taste drücken",
+
   "settings.menu.title": "Einstellungen",
   "setting.menu.subtext": "Kann auch in der Config.json geändert werden",
   "settings.menu.options": [
@@ -107,11 +143,16 @@
   "settings.language.changed": "Sprache geändert zu: {0}",
   "settings.language.no.files": "⚠ Keine Sprachdateien gefunden ⚠",
   "settings.debug.changed": "Die Debugausgabe wurde geändert: {0}",
-  "placeholder": "⚠ Dies ist ein Platzhaltertext ⚠\nInformiere den Entwickler darüber",
+
   "delete.all.prompt": "⚠ Willst du wirklich alle löschen?",
   "delete.all.done": "✅ Alle einträge wurden gelöscht.",
+
   "request.keypress": "Bitte Taste drücken zum fortfahren ...",
-  "program.exit.error.occured": "⚠ Ein Fehler ist aufgetreten. Bitte kontaktiere den Entwickler und füge die Log-Datei bei. Discord (https://discord.gg/fxaSm3aU6W)",
+
+  "placeholder": "⚠ Dies ist ein Platzhaltertext ⚠\nInformiere den Entwickler darüber",
+  "program.exit": "Programm wird beendet...",
+
+  "program.exit.error.occurred": "⚠ Ein Fehler ist aufgetreten. Bitte kontaktiere den Entwickler und füge die Log-Datei bei. Discord (https://discord.gg/fxaSm3aU6W)",
   "error.details": "Fehlerdetails: {0}",
   "undefined.error": "⚠ Ein unbekannter Fehler ist aufgetreten.",
   "manifest.save.error": "⚠ Fehler beim Speichern des Manifests: {0}",
@@ -128,6 +169,7 @@
   "exit.code.8": "⚠ Fehler beim Erstellen eines Verzeichnisses: : {0}",
   "exit.code.9": "⚠ Fehler beim Extrahieren einer Zip: {0}",
   "exit.code.10": "⚠ Fehler beim Schreiben einer Datei: {0}",
-  "exit.code.11": "⚠ Fehler beim umbenennen einer Mod: {0}"
+  "exit.code.11": "⚠ Fehler beim umbenennen einer Mod: {0}",
+  "exit.code.12": "⚠ Fehler beim Update einer Mod: {0}"
 }
 
