@@ -9,7 +9,7 @@ namespace Modmanager_neu
     class Program ()
     {
 
-        public static readonly string AppName = "Scrap Mechanic file mod Manager";
+        public static readonly string AppName = "Scrap Mechanic File-Mod Manager";
         public static readonly string AppVersion = "0.1";
         public static readonly string Masterlanguage = "de";
         public static bool IsDebug { get; set; } = true;

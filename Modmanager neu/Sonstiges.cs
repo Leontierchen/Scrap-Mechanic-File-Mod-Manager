@@ -492,7 +492,7 @@ namespace Modmanager_neu
             }
 
             Console.WriteLine("\n" + Localization.T(question)); //Frage, welcher Mod zurückgegeben werden soll
-            if (activeoption != "Vanilla" & allowvanilla)
+            if (activeoption != "Vanilla" && allowvanilla)
                 Console.WriteLine("0: " + Localization.T("mods.menu.disable.mods")); //vanilla option, only if a mod is active and vanilla is allowed
             for (int i = 0; i < dirs.Length; i++)
             {
@@ -503,7 +503,7 @@ namespace Modmanager_neu
             string option;
             while (true)
             {
-                string input = Handleinput(q: true, a: true);
+                string input = Handleinput(q: true, a: allowall);
 
                 if (input.Equals("Q", StringComparison.OrdinalIgnoreCase)) // user wants to go back/cancel
                 {
