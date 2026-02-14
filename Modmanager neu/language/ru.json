@@ -1,0 +1,174 @@
+{
+  "language.name": "Русский",
+  "pointer": "\n> ",
+  "contact.header": "--------- Контакт --------\n",
+  "contact.info": "Если у вас есть вопросы или проблемы, свяжитесь со мной на Discord: https://discord.gg/fxaSm3aU6W \nE-Mail: leon.nuendel@gmail.com \nGithub: https://github.com/Leontierchen",
+  "enter.steam.user.promt": "Пожалуйста, введите имя папки, которую вы можете найти здесь. C:\\Users\\(Ваше имя пользователя)\\AppData\\Roaming\\Axolot Games\\Scrap Mechanic\\User ",
+  "wrong.folder.input": "⚠ Указанная папка недействительна или не существует. Пожалуйста, проверьте её и попробуйте снова. Осталось {0} попыток ",
+  "log.written": "Журнал записан: {0}",
+  "gamepath.notfound": "⚠ Путь к игре не найден. Пожалуйста, проверьте, установлена ли игра Scrap Mechanic.",
+  "gamepath.promt": "Пожалуйста, введите путь установки игры Scrap Mechanic: ",
+  "main.menu.title": "Главное меню",
+  "main.menu.subtext": "Текущий установленный мод: {0}",
+  "main.menu.options": [
+    "Менеджер резервных копий",
+    "Менеджер костюмов персонажа",
+    "Управление модами",
+    "",
+    "Настройки",
+    "Контакт",
+    "Запустить игру"
+  ],
+  "backup.menu.title": "Меню резервных копий",
+  "backup.menu.subtext": "Последняя резервная копия: {0}",
+  "backup.menu.options": [
+    "Создать резервную копию",
+    "Загрузить резервную копию",
+    "Удалить резервную копию"
+  ],
+  "backup.creating": "Создание резервной копии из {0} файлов в {1}.",
+  "backup.created": "✅ Резервная копия успешно создана",
+  "backup.create.duplicates.optimized": "{0} дублирующихся файлов связано (✅ Сохранено место на диске).",
+  "backup.no.backups": "⚠ Резервные копии не найдены. Сначала создайте резервную копию ⚠",
+  "backup.load.prompt": "Какую резервную копию загрузить? (подтвердите Enter)",
+  "backup.delete.prompt": "Какую резервную копию удалить? (подтвердите Enter)",
+  "backup.loading": "Загрузка резервной копии из {0} сохранений из резервной копии {1}...",
+  "backup.deleting": "Удаление резервной копии {0} с {1} сохранениями...",
+  "backup.loaded": "✅ Резервная копия {0} загружена.",
+  "backup.load.duplicates.optimized": "Загрузка {0} связанных файлов из других резервных копий...",
+  "backup.deleted": "✅ Резервная копия {0} удалена.",
+
+  "outfit.menu.title": "Менеджер костюмов",
+  "outfit.menu.subtext": "Здесь вы можете сохранять костюмы, созданные в игре, и быстро переключаться между ними.\nТекущий выбранный костюм: {0}",
+  "outfit.menu.options": [
+    "Сохранить костюм",
+    "Загрузить костюм",
+    "Удалить костюм"
+  ],
+  "outfit.manager.no.outfits": "⚠ Нет сохранённых костюмов",
+  "outfit.manager.no.selection": "⚠ Костюм не выбран",
+  "outfit.manager.name.promt": "Пожалуйста, введите имя для костюма:",
+  "outfit.manager.name.invalid": "❌ Это имя недопустимо, пожалуйста, выберите другое",
+  "outfit.manager.name.exists": "❌ Это имя уже используется, пожалуйста, выберите другое.",
+  "outfit.manager.saved": "✅ Костюм {0} сохранён.",
+  "outfit.manager.load.prompt": "Какой костюм загрузить?",
+  "outfit.manager.loaded": "✅ Костюм {0} загружен.",
+  "outfit.manager.delete.prompt": "Какой костюм удалить?",
+  "outfit.manager.deleted": "✅ Костюм {0} удалён.",
+
+  "mods.menu.title": "Управление модами",
+  "mods.menu.subtext": "Текущий установленный мод: {0}",
+  "mods.menu.options": [
+    "Переключить активный мод",
+    "Добавить новый мод",
+    "Обновить мод",
+    "Переименовать мод",
+    "Удалить мод"
+  ],
+  "mods.menu.change.active.mod.prompt": "Какой мод следует активировать? (подтвердите Enter)",
+  "mods.menu.no.mods": "⚠ Моды не найдены. Сначала добавьте мод ⚠",
+  "mods.menu.vanillatomod.start": "Запуск резервной копии файлов игры...",
+  "mods.menu.vanillatomod.vanillasaved": "Файлы игры скопированы. Установка файлов мода...",
+  "mods.menu.vanillatomod.done": "✅ Файлы мода установлены. Приятной игры! Помните, что многопользовательский режим может больше не работать",
+
+  "mods.menu.modtovanilla.start": "Удаление файлов мода...",
+  "mods.menu.modtovanilla.moduninstall.done": "Удаление файлов мода завершено, восстановление оригинальных файлов...",
+  "mods.menu.modtovanilla.vanillarecovery.done": "✅ Оригинальные файлы восстановлены.",
+
+  "mods.menu.disable.mods": "Vanilla (отключить все моды)",
+
+  "mods.menu.new.mod.description": "Здесь вы можете объединить несколько совместимых модов в один мод и установить его. Пожалуйста, ознакомьтесь с совместимостью и порядком установки отдельных модов, так как этот инструмент только выполняет установку.\nВозможные входные данные могут быть путём к файлу .zip или путём к папке, например путь к Workshop (файловый мод).",
+  "mods.menu.new.mod.name.prompt": "Пожалуйста, введите имя для мода. (подтвердите Enter) ",
+  "mods.menu.new.mod.name.invalid": "❌ Это имя недопустимо, пожалуйста, выберите другое",
+  "mods.menu.new.mod.name.empty": "❌ Нет входных данных, пожалуйста, попробуйте снова.",
+  "mods.menu.new.mod.name.exists": "❌ Этот мод уже существует, пожалуйста, выберите другое имя",
+
+  "mods.menu.new.mod.path.prompt": "Пожалуйста, введите путь к моду (путь к папке или путь к файлу с названием файла .zip) \nПодтвердите Enter.",
+  "mods.menu.new.mod.path.invalid": "❌ Указанный путь недействителен или не существует. Пожалуйста, проверьте его и попробуйте снова.",
+  "mods.menu.new.mod.path.empty": "❌ Нет входных данных, пожалуйста, попробуйте снова.",
+
+  "mods.menu.new.mod.extract.zip": "Извлечение zip-файла...",
+  "mods.menu.new.mod.extract.zip.done": "✅ Zip-файл успешно извлечён.",
+  "mods.menu.new.mod.extract.directory": "Копирование файлов мода...",
+  "mods.menu.new.mod.extract.directory.done": "✅ Файлы мода успешно скопированы.",
+
+  "mods.menu.new.mod.add.more.mods.question": "Хотите добавить больше модов?",
+
+  "mods.menu.new.mod.finished": "✅ Мод \"{0}\" успешно создан. Теперь вы можете активировать его в меню \"{1}\".",
+
+  "mods.menu.remove.mod.prompt": "Какой мод вы хотите удалить? (подтвердите Enter)",
+  "mods.menu.remove.mod.active.warn": "Выбранный мод в настоящий момент активен. Если вы его удалите, он будет сначала деактивирован. Вы уверены, что хотите это сделать?",
+  "mods.menu.remove.mod.all.warn": "⚠ Внимание, вы хотите деактивировать и удалить все моды! Это правильно? Вы не сможете это отменить.",
+  "mods.menu.remove.mod.done": "✅ Мод \"{0}\" удалён.",
+  "mods.menu.remove.mod.all.finished": "✅ Все моды деактивированы и удалены.",
+
+  "mods.menu.rename.mod.prompt": "Какой мод вы хотите переименовать? (подтвердите Enter)",
+  "mods.menu.rename.mod.name.prompt": "Пожалуйста, введите новое имя. (подтвердите Enter) ",
+  "mods.menu.rename.mod.done": "✅ Мод \"{0}\" успешно переименован в \"{1}\"",
+
+  "mods.menu.update.prompt": "Какой мод вы хотите обновить?",
+  "mods.menu.update.progress.start": "Обновление мода {0}...",
+  "mods.menu.update.progress.running": "Теперь обновляются файлы мода...",
+  "mods.menu.update.progress.finished": "✅ Мод {0} успешно обновлён.",
+
+  "mods.menu.update.recover.vanilla": "Удаление активного мода перед обновлением...",
+  "mods.menu.update.recover.vanilla.done": "✅ Мод успешно удалён для обновления.",
+
+  "mods.menu.update.reactivate.mod": "Мод реактивируется...",
+  "mods.menu.update.reactivate.mod.done": "✅ Мод успешно реактивирован. Приятной игры!",
+
+  "mods.menu.update.check.no.paths": "⚠ В текущем моде не сохранены пути. Обновление не может быть выполнено.",
+  "mods.menu.update.check.paths.prompt": "Этот путь файла мода по-прежнему верен?",
+  "mods.menu.update.check.pathnolongerexists": "❌ Путь больше не существует.",
+  "mods.menu.update.check.asktofixpath": "Вы хотите обновить путь? Если нет, он будет удалён.",
+  "mods.menu.update.check.paths.done": "Проверка пути завершена. Будут использованы следующие пути: ",
+  "mods.menu.update.confirm": "Вы хотите продолжить?",
+
+  "menu.go.back.esc": "\nESC) Предыдущее меню",
+  "menu.go.back.q": "\nQ) Предыдущее меню (отмена)",
+  "menu.exit.esc": "\nESC) Выход из программы",
+  "menu.wrong.keypress": "❌ Неверный ввод. Пожалуйста, нажмите другую клавишу",
+
+  "picker.all.a": "\nA) Выбрать всё",
+  "picker.canceled": "Выбор отменён...",
+  "picker.option.same": "❌ Выбор уже активен, пожалуйста, выберите другой вариант",
+
+  "settings.menu.title": "Настройки",
+  "setting.menu.subtext": "Можно также изменить в Config.json",
+  "settings.menu.options": [
+    "Изменить язык / Language ändern",
+    "Переключить вывод отладки"
+  ],
+  "settings.language.select": "--- Выберите язык ---",
+  "settings.language.changed": "Язык изменён на: {0}",
+  "settings.language.no.files": "⚠ Файлы языка не найдены ⚠",
+  "settings.debug.changed": "Вывод отладки изменён: {0}",
+
+  "delete.all.prompt": "⚠ Вы действительно хотите удалить всё?",
+  "delete.all.done": "✅ Все записи удалены.",
+
+  "request.keypress": "Пожалуйста, нажмите любую клавишу, чтобы продолжить ...",
+
+  "placeholder": "⚠ Это текст-заполнитель ⚠\nСообщите разработчику об этом",
+  "program.exit": "Программа завершается...",
+
+  "program.exit.error.occurred": "⚠ Произошла ошибка. Пожалуйста, свяжитесь с разработчиком и приложите файл журнала. Discord (https://discord.gg/fxaSm3aU6W)",
+  "error.details": "Детали ошибки: {0}",
+  "undefined.error": "⚠ Произошла неизвестная ошибка.",
+  "manifest.save.error": "⚠ Ошибка при сохранении манифеста: {0}",
+  "manifest.load.error": "⚠ Ошибка при загрузке манифеста: {0}",
+  "loadduplicatedfiles.file.not.found": "⚠ Связанный файл не найден: {0}",
+  "loadduplicatedfiles.load.error": "⚠ Ошибка при загрузке связанного файла {0}: {1}",
+  "exit.code.1": "Нажмите Enter для выхода.",
+  "exit.code.2": "Режим отладки — пауза для проверки.",
+  "exit.code.3": "⚠ Ошибка Steam ID. Ввод: {0}",
+  "exit.code.4": "⚠ Ошибка пути к игре. Ввод: {0}",
+  "exit.code.5": "⚠ Ошибка при перемещении файла: {0}",
+  "exit.code.6": "⚠ Ошибка при копировании файла: {0}",
+  "exit.code.7": "⚠ Ошибка при удалении файла: {0} + {1}",
+  "exit.code.8": "⚠ Ошибка при создании каталога: {0}",
+  "exit.code.9": "⚠ Ошибка при извлечении zip: {0}",
+  "exit.code.10": "⚠ Ошибка при записи файла: {0}",
+  "exit.code.11": "⚠ Ошибка при переименовании мода: {0}",
+  "exit.code.12": "⚠ Ошибка при обновлении мода: {0}"
+}

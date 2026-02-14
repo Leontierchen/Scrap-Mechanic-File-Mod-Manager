@@ -1,0 +1,174 @@
+{
+  "language.name": "Українська",
+  "pointer": "\n> ",
+  "contact.header": "--------- Контакти --------\n",
+  "contact.info": "Якщо у вас є запитання або проблеми, будь ласка, зв'яжіться зі мною на Discord: https://discord.gg/fxaSm3aU6W \nE-Mail: leon.nuendel@gmail.com \nGithub: https://github.com/Leontierchen",
+  "enter.steam.user.promt": "Будь ласка, введіть назву папки, яку ви можете знайти тут. C:\\Users\\(Ваше ім'я користувача)\\AppData\\Roaming\\Axolot Games\\Scrap Mechanic\\User ",
+  "wrong.folder.input": "⚠ Вказана папка недійсна або не існує. Будь ласка, перевірте її та спробуйте ще раз. Залишилось {0} спроб ",
+  "log.written": "Журнал записаний: {0}",
+  "gamepath.notfound": "⚠ Шлях до гри не знайдено. Будь ласка, перевірте, чи встановлена гра Scrap Mechanic.",
+  "gamepath.promt": "Будь ласка, введіть шлях установки гри Scrap Mechanic: ",
+  "main.menu.title": "Головне меню",
+  "main.menu.subtext": "Поточно встановлений мод: {0}",
+  "main.menu.options": [
+    "Менеджер резервних копій",
+    "Менеджер костюмів персонажа",
+    "Керування модами",
+    "",
+    "Параметри",
+    "Контакти",
+    "Запустити гру"
+  ],
+  "backup.menu.title": "Меню резервних копій",
+  "backup.menu.subtext": "Остання резервна копія: {0}",
+  "backup.menu.options": [
+    "Створити резервну копію",
+    "Завантажити резервну копію",
+    "Видалити резервну копію"
+  ],
+  "backup.creating": "Створення резервної копії з {0} файлів у {1}.",
+  "backup.created": "✅ Резервна копія успішно створена",
+  "backup.create.duplicates.optimized": "{0} дублюючих файлів пов'язано (✅ Місце збережено).",
+  "backup.no.backups": "⚠ Резервні копії не знайдені. Спочатку створіть резервну копію ⚠",
+  "backup.load.prompt": "Яку резервну копію завантажити? (підтвердіть Enter)",
+  "backup.delete.prompt": "Яку резервну копію видалити? (підтвердіть Enter)",
+  "backup.loading": "Завантаження резервної копії з {0} збережень із резервної копії {1}...",
+  "backup.deleting": "Видалення резервної копії {0} з {1} збереженнями...",
+  "backup.loaded": "✅ Резервна копія {0} завантажена.",
+  "backup.load.duplicates.optimized": "Завантаження {0} пов'язаних файлів із інших резервних копій...",
+  "backup.deleted": "✅ Резервна копія {0} видалена.",
+
+  "outfit.menu.title": "Менеджер костюмів",
+  "outfit.menu.subtext": "Тут ви можете зберігати костюми, створені в грі, і швидко перемикатися між ними.\nПоточно вибраний костюм: {0}",
+  "outfit.menu.options": [
+    "Зберегти костюм",
+    "Завантажити костюм",
+    "Видалити костюм"
+  ],
+  "outfit.manager.no.outfits": "⚠ Немає збережених костюмів",
+  "outfit.manager.no.selection": "⚠ Костюм не вибрано",
+  "outfit.manager.name.promt": "Будь ласка, введіть назву костюма:",
+  "outfit.manager.name.invalid": "❌ Ця назва неприйнятна, будь ласка, виберіть іншу",
+  "outfit.manager.name.exists": "❌ Ця назва вже використовується, будь ласка, виберіть іншу.",
+  "outfit.manager.saved": "✅ Костюм {0} збережений.",
+  "outfit.manager.load.prompt": "Який костюм завантажити?",
+  "outfit.manager.loaded": "✅ Костюм {0} завантажений.",
+  "outfit.manager.delete.prompt": "Який костюм видалити?",
+  "outfit.manager.deleted": "✅ Костюм {0} видалений.",
+
+  "mods.menu.title": "Керування модами",
+  "mods.menu.subtext": "Поточно встановлений мод: {0}",
+  "mods.menu.options": [
+    "Перемкнути активний мод",
+    "Додати новий мод",
+    "Оновити мод",
+    "Перейменувати мод",
+    "Видалити мод"
+  ],
+  "mods.menu.change.active.mod.prompt": "Який мод слід активувати? (підтвердіть Enter)",
+  "mods.menu.no.mods": "⚠ Моди не знайдені. Спочатку додайте мод ⚠",
+  "mods.menu.vanillatomod.start": "Запуск резервної копії файлів гри...",
+  "mods.menu.vanillatomod.vanillasaved": "Файли гри скопійовані. Встановлення файлів моду...",
+  "mods.menu.vanillatomod.done": "✅ Файли моду встановлені. Приємної гри! Пам'ятайте, що багатокористувацький режим може більше не працювати",
+
+  "mods.menu.modtovanilla.start": "Видалення файлів моду...",
+  "mods.menu.modtovanilla.moduninstall.done": "Видалення файлів моду завершено, відновлення оригінальних файлів...",
+  "mods.menu.modtovanilla.vanillarecovery.done": "✅ Оригінальні файли відновлені.",
+
+  "mods.menu.disable.mods": "Vanilla (відключити всі моди)",
+
+  "mods.menu.new.mod.description": "Тут ви можете об'єднати кілька сумісних модів в один мод і встановити його. Будь ласка, ознайомтеся з сумісністю та порядком встановлення окремих модів, оскільки цей інструмент лише виконує встановлення.\nМожливі вхідні дані можуть бути шляхом до файлу .zip або шляхом до папки, наприклад шлях до Workshop (файловий мод).",
+  "mods.menu.new.mod.name.prompt": "Будь ласка, введіть назву модифікації. (підтвердіть Enter) ",
+  "mods.menu.new.mod.name.invalid": "❌ Ця назва неприйнятна, будь ласка, виберіть іншу",
+  "mods.menu.new.mod.name.empty": "❌ Немає введення, будь ласка, спробуйте ще раз.",
+  "mods.menu.new.mod.name.exists": "❌ Цей мод уже існує, будь ласка, виберіть іншу назву",
+
+  "mods.menu.new.mod.path.prompt": "Будь ласка, введіть шлях до модифікації (шлях до папки або шлях до файлу з назвою файлу .zip) \nПідтвердіть Enter.",
+  "mods.menu.new.mod.path.invalid": "❌ Вказаний шлях недійсний або не існує. Будь ласка, перевірте його та спробуйте ще раз.",
+  "mods.menu.new.mod.path.empty": "❌ Немає введення, будь ласка, спробуйте ще раз.",
+
+  "mods.menu.new.mod.extract.zip": "Розпакування zip-файлу...",
+  "mods.menu.new.mod.extract.zip.done": "✅ Zip-файл успішно розпакований.",
+  "mods.menu.new.mod.extract.directory": "Копіювання файлів модифікації...",
+  "mods.menu.new.mod.extract.directory.done": "✅ Файли модифікації успішно скопійовані.",
+
+  "mods.menu.new.mod.add.more.mods.question": "Чи хочете додати більше модів?",
+
+  "mods.menu.new.mod.finished": "✅ Мод \"{0}\" успішно створено. Тепер ви можете активувати його в меню \"{1}\".",
+
+  "mods.menu.remove.mod.prompt": "Який мод ви хочете видалити? (підтвердіть Enter)",
+  "mods.menu.remove.mod.active.warn": "Вибраний мод в даний час активний. Якщо ви його видалите, він буде спочатку деактивований. Ви впевнені, що хочете це зробити?",
+  "mods.menu.remove.mod.all.warn": "⚠ Увага, ви хочете деактивувати та видалити всі моди! Це правильно? Ви не зможете це скасувати.",
+  "mods.menu.remove.mod.done": "✅ Мод \"{0}\" видалений.",
+  "mods.menu.remove.mod.all.finished": "✅ Всі моди деактивовані та видалені.",
+
+  "mods.menu.rename.mod.prompt": "Який мод ви хочете перейменувати? (підтвердіть Enter)",
+  "mods.menu.rename.mod.name.prompt": "Будь ласка, введіть нову назву. (підтвердіть Enter) ",
+  "mods.menu.rename.mod.done": "✅ Мод \"{0}\" успішно перейменовано на \"{1}\"",
+
+  "mods.menu.update.prompt": "Який мод ви хочете оновити?",
+  "mods.menu.update.progress.start": "Оновлення модифікації {0}...",
+  "mods.menu.update.progress.running": "Тепер оновлюються файли модифікації...",
+  "mods.menu.update.progress.finished": "✅ Мод {0} успішно оновлено.",
+
+  "mods.menu.update.recover.vanilla": "Видалення активного модифікації перед оновленням...",
+  "mods.menu.update.recover.vanilla.done": "✅ Мод успішно видалено для оновлення.",
+
+  "mods.menu.update.reactivate.mod": "Мод повторно активується...",
+  "mods.menu.update.reactivate.mod.done": "✅ Мод успішно повторно активовано. Приємної гри!",
+
+  "mods.menu.update.check.no.paths": "⚠ У поточному моді не збережено шляхів. Оновлення не може бути виконано.",
+  "mods.menu.update.check.paths.prompt": "Цей шлях файлу модифікації все ще вірний?",
+  "mods.menu.update.check.pathnolongerexists": "❌ Шлях більше не існує.",
+  "mods.menu.update.check.asktofixpath": "Ви хочете оновити шлях? Якщо ні, він буде видалений.",
+  "mods.menu.update.check.paths.done": "Перевірка шляху завершена. Буде використано наступні шляхи: ",
+  "mods.menu.update.confirm": "Ви хочете продовжити?",
+
+  "menu.go.back.esc": "\nESC) Попереднє меню",
+  "menu.go.back.q": "\nQ) Попереднє меню (скасувати)",
+  "menu.exit.esc": "\nESC) Вихід із програми",
+  "menu.wrong.keypress": "❌ Неправильне введення. Будь ласка, натисніть іншу клавішу",
+
+  "picker.all.a": "\nA) Вибрати все",
+  "picker.canceled": "Вибір скасовано...",
+  "picker.option.same": "❌ Вибір уже активний, будь ласка, виберіть іншу опцію",
+
+  "settings.menu.title": "Параметри",
+  "setting.menu.subtext": "Можна також змінити в Config.json",
+  "settings.menu.options": [
+    "Змінити мову / Language ändern",
+    "Переключити вивід налагодження"
+  ],
+  "settings.language.select": "--- Виберіть мову ---",
+  "settings.language.changed": "Мова змінена на: {0}",
+  "settings.language.no.files": "⚠ Файли мови не знайдені ⚠",
+  "settings.debug.changed": "Вивід налагодження змінено: {0}",
+
+  "delete.all.prompt": "⚠ Ви дійсно хочете видалити все?",
+  "delete.all.done": "✅ Усі записи видалені.",
+
+  "request.keypress": "Будь ласка, натисніть будь-яку клавішу, щоб продовжити ...",
+
+  "placeholder": "⚠ Це текст-заповнювач ⚠\nПроінформуйте розробника про це",
+  "program.exit": "Програма завершується...",
+
+  "program.exit.error.occurred": "⚠ Сталася помилка. Будь ласка, зв'яжіться з розробником і приєднайте файл журналу. Discord (https://discord.gg/fxaSm3aU6W)",
+  "error.details": "Деталі помилки: {0}",
+  "undefined.error": "⚠ Сталася невідома помилка.",
+  "manifest.save.error": "⚠ Помилка при збереженні маніфесту: {0}",
+  "manifest.load.error": "⚠ Помилка при завантаженні маніфесту: {0}",
+  "loadduplicatedfiles.file.not.found": "⚠ Пов'язаний файл не знайдено: {0}",
+  "loadduplicatedfiles.load.error": "⚠ Помилка при завантаженні пов'язаного файлу {0}: {1}",
+  "exit.code.1": "Натисніть Enter для виходу.",
+  "exit.code.2": "Режим налагодження — пауза для перевірки.",
+  "exit.code.3": "⚠ Помилка Steam ID. Введення: {0}",
+  "exit.code.4": "⚠ Помилка шляху до гри. Введення: {0}",
+  "exit.code.5": "⚠ Помилка при переміщенні файлу: {0}",
+  "exit.code.6": "⚠ Помилка при копіюванні файлу: {0}",
+  "exit.code.7": "⚠ Помилка при видаленні файлу: {0} + {1}",
+  "exit.code.8": "⚠ Помилка при створенні каталогу: {0}",
+  "exit.code.9": "⚠ Помилка при розпакуванні zip: {0}",
+  "exit.code.10": "⚠ Помилка при записі файлу: {0}",
+  "exit.code.11": "⚠ Помилка при перейменуванні модифікації: {0}",
+  "exit.code.12": "⚠ Помилка при оновленні модифікації: {0}"
+}

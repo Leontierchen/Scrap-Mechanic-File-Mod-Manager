@@ -1,0 +1,174 @@
+{
+  "language.name": "English",
+  "pointer": "\n> ",
+  "contact.header": "--------- Contact --------\n",
+  "contact.info": "If you have any questions or problems, feel free to contact me on Discord: https://discord.gg/fxaSm3aU6W \nE-Mail: leon.nuendel@gmail.com \nGithub: https://github.com/Leontierchen",
+  "enter.steam.user.promt": "Please enter the folder name you can find here. C:\\Users\\(Your username)\\AppData\\Roaming\\Axolot Games\\Scrap Mechanic\\User ",
+  "wrong.folder.input": "⚠ The specified folder is invalid or does not exist. Please check it and try again. {0} attempts remaining ",
+  "log.written": "Log written: {0}",
+  "gamepath.notfound": "⚠ Game path not found. Please check if Scrap Mechanic is installed.",
+  "gamepath.promt": "Please enter the installation path of the Scrap Mechanic game: ",
+  "main.menu.title": "Main Menu",
+  "main.menu.subtext": "Currently installed mod: {0}",
+  "main.menu.options": [
+    "Backup Manager",
+    "Character Outfit Manager",
+    "Manage Mods",
+    "",
+    "Settings",
+    "Contact",
+    "Start Game"
+  ],
+  "backup.menu.title": "Backup Menu",
+  "backup.menu.subtext": "Last Backup: {0}",
+  "backup.menu.options": [
+    "Create Backup",
+    "Load Backup",
+    "Delete Backup"
+  ],
+  "backup.creating": "Creating a backup of {0} files in {1}.",
+  "backup.created": "✅ Backup successfully created",
+  "backup.create.duplicates.optimized": "{0} duplicate files linked (✅ Storage saved).",
+  "backup.no.backups": "⚠ No backups found. Please create a backup first ⚠",
+  "backup.load.prompt": "Which backup should be loaded? (confirm with Enter)",
+  "backup.delete.prompt": "Which backup should be deleted? (confirm with Enter)",
+  "backup.loading": "Loading a backup of {0} SaveGames from Backup {1}...",
+  "backup.deleting": "Deleting the backup {0} with {1} SaveGames...",
+  "backup.loaded": "✅ Backup {0} loaded.",
+  "backup.load.duplicates.optimized": "Loading {0} linked files from other backups...",
+  "backup.deleted": "✅ Backup {0} deleted.",
+
+  "outfit.menu.title": "Outfit Manager",
+  "outfit.menu.subtext": "Here you can save the outfits you created in-game and switch between them quickly.\nCurrently selected outfit: {0}",
+  "outfit.menu.options": [
+    "Save Outfit",
+    "Load Outfit",
+    "Delete Outfit"
+  ],
+  "outfit.manager.no.outfits": "⚠ No saved outfits available",
+  "outfit.manager.no.selection": "⚠ No outfit selected",
+  "outfit.manager.name.promt": "Please enter a name for the outfit:",
+  "outfit.manager.name.invalid": "❌ This name is not allowed, please choose another name",
+  "outfit.manager.name.exists": "❌ This name is already taken, please choose another one.",
+  "outfit.manager.saved": "✅ Outfit {0} saved.",
+  "outfit.manager.load.prompt": "Which outfit should be loaded?",
+  "outfit.manager.loaded": "✅ Outfit {0} loaded.",
+  "outfit.manager.delete.prompt": "Which outfit should be deleted?",
+  "outfit.manager.deleted": "✅ Outfit {0} deleted.",
+
+  "mods.menu.title": "Manage Mods",
+  "mods.menu.subtext": "Currently installed mod: {0}",
+  "mods.menu.options": [
+    "Switch Active Mod",
+    "Add New Mod",
+    "Update Mod",
+    "Rename Mod",
+    "Uninstall Mod"
+  ],
+  "mods.menu.change.active.mod.prompt": "Which mod should be activated? (Confirm with Enter)",
+  "mods.menu.no.mods": "⚠ No mods found. Please add a mod first ⚠",
+  "mods.menu.vanillatomod.start": "Starting backup of game files...",
+  "mods.menu.vanillatomod.vanillasaved": "Game files backed up. Installing mod files...",
+  "mods.menu.vanillatomod.done": "✅ Mod files installed. Have fun playing! Remember that multiplayer may no longer work",
+
+  "mods.menu.modtovanilla.start": "Uninstalling mod files...",
+  "mods.menu.modtovanilla.moduninstall.done": "Mod file uninstallation completed, restoring original files...",
+  "mods.menu.modtovanilla.vanillarecovery.done": "✅ Original files restored.",
+
+  "mods.menu.disable.mods": "Vanilla (disables all mods)",
+
+  "mods.menu.new.mod.description": "Here you can combine multiple compatible mods into one mod and install them. Please inform yourself about the compatibility and installation order of the individual mods, as this tool only handles the installation.\nPossible inputs can be a path to a .zip file or a folder path, e.g. path to a Workshop (file mod).",
+  "mods.menu.new.mod.name.prompt": "Please enter a name for the mod. (Confirm with Enter) ",
+  "mods.menu.new.mod.name.invalid": "❌ This name is not allowed, please choose another name",
+  "mods.menu.new.mod.name.empty": "❌ No input, please try again.",
+  "mods.menu.new.mod.name.exists": "❌ This mod already exists, please choose another name",
+
+  "mods.menu.new.mod.path.prompt": "Please enter the path to the mod (folder path or file path with .zip filename) \nConfirm with Enter.",
+  "mods.menu.new.mod.path.invalid": "❌ The specified path is invalid or does not exist. Please check it and try again.",
+  "mods.menu.new.mod.path.empty": "❌ No input, please try again.",
+
+  "mods.menu.new.mod.extract.zip": "Extracting zip file...",
+  "mods.menu.new.mod.extract.zip.done": "✅ Zip file successfully extracted.",
+  "mods.menu.new.mod.extract.directory": "Copying mod files...",
+  "mods.menu.new.mod.extract.directory.done": "✅ Mod files successfully copied.",
+
+  "mods.menu.new.mod.add.more.mods.question": "Do you want to add more mods?",
+
+  "mods.menu.new.mod.finished": "✅ The mod \"{0}\" was successfully created. Now you can activate it in the menu \"{1}\".",
+
+  "mods.menu.remove.mod.prompt": "Which mod do you want to delete? (confirm with Enter)",
+  "mods.menu.remove.mod.active.warn": "The selected mod is currently active. If you delete it, it will be deactivated first. Are you sure you want to do this?",
+  "mods.menu.remove.mod.all.warn": "⚠ Warning, you want to deactivate and delete all mods! Is that correct? You cannot undo it.",
+  "mods.menu.remove.mod.done": "✅ Mod \"{0}\" deleted.",
+  "mods.menu.remove.mod.all.finished": "✅ All mods have been deactivated and deleted.",
+
+  "mods.menu.rename.mod.prompt": "Which mod do you want to rename? (confirm with Enter)",
+  "mods.menu.rename.mod.name.prompt": "Please enter a new name. (confirm with Enter) ",
+  "mods.menu.rename.mod.done": "✅ The mod \"{0}\" was successfully renamed to \"{1}\"",
+
+  "mods.menu.update.prompt": "Which mod do you want to update?",
+  "mods.menu.update.progress.start": "Updating mod {0}...",
+  "mods.menu.update.progress.running": "Now updating the mod files...",
+  "mods.menu.update.progress.finished": "✅ Mod {0} successfully updated.",
+
+  "mods.menu.update.recover.vanilla": "Uninstalling the active mod before updating...",
+  "mods.menu.update.recover.vanilla.done": "✅ The mod was successfully uninstalled for the update.",
+
+  "mods.menu.update.reactivate.mod": "The mod is being reactivated...",
+  "mods.menu.update.reactivate.mod.done": "✅ The mod was successfully reactivated. Have fun playing!",
+
+  "mods.menu.update.check.no.paths": "⚠ The current mod has no paths stored. Update cannot be performed.",
+  "mods.menu.update.check.paths.prompt": "Is this mod file path still correct?",
+  "mods.menu.update.check.pathnolongerexists": "❌ The path no longer exists.",
+  "mods.menu.update.check.asktofixpath": "Do you want to update the path? If not, it will be removed.",
+  "mods.menu.update.check.paths.done": "Path verification is complete. These paths will be used: ",
+  "mods.menu.update.confirm": "Do you want to continue?",
+
+  "menu.go.back.esc": "\nESC) Previous Menu",
+  "menu.go.back.q": "\nQ) Previous Menu (cancel)",
+  "menu.exit.esc": "\nESC) Exit Program",
+  "menu.wrong.keypress": "❌ Invalid input. Please press another key",
+
+  "picker.all.a": "\nA) Select All",
+  "picker.canceled": "Selection canceled...",
+  "picker.option.same": "❌ Selection is already active, please choose another option",
+
+  "settings.menu.title": "Settings",
+  "setting.menu.subtext": "Can also be changed in the Config.json",
+  "settings.menu.options": [
+    "Change Language / Language ändern",
+    "Toggle Debug Output"
+  ],
+  "settings.language.select": "--- Select Language ---",
+  "settings.language.changed": "Language changed to: {0}",
+  "settings.language.no.files": "⚠ No language files found ⚠",
+  "settings.debug.changed": "Debug output changed: {0}",
+
+  "delete.all.prompt": "⚠ Do you really want to delete everything?",
+  "delete.all.done": "✅ All entries have been deleted.",
+
+  "request.keypress": "Please press any key to continue ...",
+
+  "placeholder": "⚠ This is placeholder text ⚠\nInform the developer about this",
+  "program.exit": "Program is shutting down...",
+
+  "program.exit.error.occurred": "⚠ An error has occurred. Please contact the developer and attach the log file. Discord (https://discord.gg/fxaSm3aU6W)",
+  "error.details": "Error details: {0}",
+  "undefined.error": "⚠ An unknown error has occurred.",
+  "manifest.save.error": "⚠ Error saving manifest: {0}",
+  "manifest.load.error": "⚠ Error loading manifest: {0}",
+  "loadduplicatedfiles.file.not.found": "⚠ Linked file not found: {0}",
+  "loadduplicatedfiles.load.error": "⚠ Error loading linked file {0}: {1}",
+  "exit.code.1": "Press Enter to exit.",
+  "exit.code.2": "Debug mode — pause for inspection.",
+  "exit.code.3": "⚠ Steam ID error. Input: {0}",
+  "exit.code.4": "⚠ Game path error. Input: {0}",
+  "exit.code.5": "⚠ Error moving a file: {0}",
+  "exit.code.6": "⚠ Error copying a file: {0}",
+  "exit.code.7": "⚠ Error deleting a file: {0} + {1}",
+  "exit.code.8": "⚠ Error creating a directory: {0}",
+  "exit.code.9": "⚠ Error extracting a zip: {0}",
+  "exit.code.10": "⚠ Error writing a file: {0}",
+  "exit.code.11": "⚠ Error renaming a mod: {0}",
+  "exit.code.12": "⚠ Error updating a mod: {0}"
+}
