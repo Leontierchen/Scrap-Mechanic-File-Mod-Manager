@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.Design;
+﻿using System.Diagnostics;
 using System.IO.Compression;
 using System.Runtime.Versioning;
 using System.Security.Cryptography;
@@ -16,7 +16,7 @@ namespace Modmanager_neu
         public static readonly string vanillapath = Path.Combine(gamepath, modtool, "vanilla");
         public static readonly string contentsfile = "contents.txt";
         public static readonly string modlistsfile = "modlist.txt";
-        // new: file that stores source signatures
+        public static readonly string defaultmodspath = Path.Combine(AppContext.BaseDirectory, "default_mods");
         public static readonly string sourcesigfile = "sourcesig.txt";
         public static string GetCurrentMod()
         {
@@ -113,7 +113,6 @@ namespace Modmanager_neu
             SaveConfig(config);
             return gamepath;
         }
-
         internal static void AddMod(bool update = false, string updatename = "", string[]? updatepaths = null) // menu option
         {
             Sonstiges.DebugText("Starte hinzufügen einer neuen Mod...");
@@ -174,6 +173,44 @@ namespace Modmanager_neu
                 }
                 Sonstiges.DebugText("Modupdate für Mod: " + modname);
             }
+            if (update == false)
+            {
+                bool done = false;
+                while (done == false)
+                {
+                    IO.ShowMessage("mods.menu.new.mod.path.prompt");
+
+                    // Use Windows file/folder picker instead of console input
+                    string[]? picked = PickFilesOrFolderDialog();
+                    if (picked == null || picked.Length == 0)
+                    {
+                        Sonstiges.DebugText("Pfadauswahl abgebrochen durch Nutzer.");
+                        IO.WaitForKeypress();
+                        return;
+                    }
+                    
+                    foreach (var inputpath in picked)
+                    {
+                        if (Directory.Exists(inputpath) || File.Exists(inputpath))
+                        {
+                            IO.ShowMessage("mods.menu.new.mod.path.accepted",[inputpath]);
+                            modslist.Add(inputpath);
+                        }
+                        else
+                        {
+                            IO.ShowMessage("mods.menu.new.mod.path.invalid");
+                        }
+                    }
+
+                    if (IO.YesOrNoPrompt(Localization.T("mods.menu.new.mod.add.more.mods.question")) == false)
+                    {
+                        Sonstiges.DebugText("Mods hinzufügen fertig");
+                        done = true;
+                    }
+                    else { Sonstiges.DebugText("noch eine mod hinzufügen, fortsetzen"); }
+                }
+            }
+
             Sonstiges.DebugText("Erstelle Directory.");
             string modnamepath = $@"{modspath}\{modname}";
             string modfiles = $@"{modnamepath}\files";
@@ -181,56 +218,6 @@ namespace Modmanager_neu
             { Directory.CreateDirectory(modfiles); }
             catch (Exception ex)
             { WriteLogAndExit(8, ex.Message); } // Fehler beim Erstellen des Modverzeichnisses, wahrscheinlich ungültige Zeichen im Modnamen, obwohl vorher geprüft.
-            if (update == false)
-            {
-                bool done = false;
-                while (done == false)
-                {
-                    bool validpath = false;
-                    IO.ShowMessage("mods.menu.new.mod.path.prompt");
-                    while (validpath == false)
-                    {
-                        string? inputpath = IO.Handleinput(q: true);
-                        if (inputpath != null)
-                        {
-                            Console.WriteLine();
-                            switch (inputpath)
-                            {
-                                case "Q" or "q":
-                                    Sonstiges.DebugText("[Debug] Modnamen Eingabe abgebrochen durch Nutzer.");
-                                    return;
-                                case "":
-                                    IO.ShowMessage("mods.menu.new.mod.path.empty");
-                                    break;
-                                case string s when s.IndexOfAny(Path.GetInvalidPathChars()) >= 0:
-                                    IO.ShowMessage("mods.menu.new.mod.path.invalid");
-                                    break;
-                                default:
-                                    if (Directory.Exists(inputpath) || File.Exists(inputpath))
-                                    {
-                                        validpath = true;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        IO.ShowMessage("mods.menu.new.mod.path.invalid");
-                                        break;
-                                    }
-                            }
-                            modslist.Add(inputpath);
-                            if (IO.YesOrNoPrompt(Localization.T("mods.menu.new.mod.add.more.mods.question")) == false)
-                            {
-                                Sonstiges.DebugText("Mods hinzufügen fertig");
-                                done = true;
-                            }
-                            else { Sonstiges.DebugText("noch eine mod hinzufügen, fortsetzen"); }
-                        }
-                        else { IO.ShowMessage("mods.menu.new.mod.name.invalid"); }
-
-                    }
-
-                }
-            }
             foreach (string item in modslist)
             {
                 if (File.Exists(item))
@@ -350,110 +337,6 @@ namespace Modmanager_neu
             IO.WaitForKeypress();
             return;
         }
-
-        // New: compute SHA256 for a file
-        static string ComputeFileHash(string path)
-        {
-            using (var sha = SHA256.Create())
-            using (var stream = File.OpenRead(path))
-            {
-                var hash = sha.ComputeHash(stream);
-                return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
-            }
-        }
-
-        // New: compute combined SHA256 for a directory by hashing each file and combining
-        static string ComputeDirectoryHash(string dir)
-        {
-            var files = Directory.GetFiles(dir, "*.*", SearchOption.AllDirectories);
-            Array.Sort(files, StringComparer.OrdinalIgnoreCase);
-            using (var sha = SHA256.Create())
-            {
-                foreach (var f in files)
-                {
-                    // incorporate relative path to detect structure changes
-                    var rel = Path.GetRelativePath(dir, f).Replace(Path.DirectorySeparatorChar, '/');
-                    var relBytes = System.Text.Encoding.UTF8.GetBytes(rel);
-                    sha.TransformBlock(relBytes, 0, relBytes.Length, relBytes, 0);
-
-                    using (var stream = File.OpenRead(f))
-                    {
-                        var buffer = new byte[8192];
-                        int read;
-                        while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
-                        {
-                            sha.TransformBlock(buffer, 0, read, buffer, 0);
-                        }
-                    }
-                }
-                // finalize
-                sha.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
-                return BitConverter.ToString(sha.Hash!).Replace("-", "").ToLowerInvariant();
-            }
-        }
-
-        // New: check sourcesig for a mod and offer update if changed
-        static void CheckAndOfferUpdate(string modname)
-        {
-            string modpath = Path.Combine(modspath, modname);
-            string sigpath = Path.Combine(modpath, sourcesigfile);
-            if (!File.Exists(sigpath))
-            {
-                Sonstiges.DebugText("Auto Update: No source signature found for mod: " + modname);
-                return;
-            }
-
-            var lines = File.ReadAllLines(sigpath);
-            List<string> changed = [];
-            foreach (var line in lines)
-            {
-                if (string.IsNullOrWhiteSpace(line))
-                    continue;
-                var parts = line.Split('|', 2);
-                if (parts.Length != 2)
-                    continue;
-                var src = parts[0];
-                var saved = parts[1];
-                string current = "MISSING";
-                try
-                {
-                    if (File.Exists(src))
-                        current = ComputeFileHash(src);
-                    else if (Directory.Exists(src))
-                        current = ComputeDirectoryHash(src);
-                    else
-                        current = "MISSING";
-                }
-                catch
-                {
-                    current = "ERROR";
-                }
-                if (!string.Equals(saved, current, StringComparison.OrdinalIgnoreCase))
-                    changed.Add(src);
-            }
-
-            if (changed.Count > 0)
-            {
-                IO.ShowMessage("mods.menu.update.available", [modname]);
-                foreach (var c in changed)
-                    Console.WriteLine("- " + c);
-
-                if (IO.YesOrNoPrompt(Localization.T("mods.menu.autoupdate.prompt")))
-                {
-                    Sonstiges.DebugText($"User accepted autoupdate for mod {modname}");
-                    UpdateMod(modname);
-                }
-                else
-                {
-                    Sonstiges.DebugText($"User declined autoupdate for mod {modname}");
-                }
-            }
-            else
-            {
-                Sonstiges.DebugText("No changes detected for mod: " + modname);
-            }
-        }
-
         internal static void UpdateMod(string? autoupdatename = null) // menu option
         {
             string activemod = GetCurrentMod();
@@ -735,7 +618,7 @@ namespace Modmanager_neu
             string modpath = Path.Combine(modspath, modname);
             //vanillabackup
             Sonstiges.DebugText($"Lese Datei: {Path.Combine(modpath, contentsfile)}");
-            string[] modfiles = File.ReadAllLines(Path.Combine(modpath, contentsfile)); //relative paths
+            string [] modfiles = File.ReadAllLines(Path.Combine(modpath, contentsfile)); //relative paths
             IO.ShowMessage("mods.menu.vanillatomod.start");
             List<string> vanillafiles = [];
             Sonstiges.DebugText("Erstelle Database für Vanillafiles, die gesichert werden müssen");
@@ -782,6 +665,150 @@ namespace Modmanager_neu
                 Sonstiges.Filehelper.Move(Path.Combine(vanillapath, "files"), gamepath, true, vanillafiles, true, true);
                 IO.ShowMessage("mods.menu.modtovanilla.vanillarecovery.done");
             }
+        }
+        static string ComputeFileHash(string path)
+        {
+            using var sha = SHA256.Create();
+            using var stream = File.OpenRead(path);
+            var hash = sha.ComputeHash(stream);
+            return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+        }
+        static string ComputeDirectoryHash(string dir)
+        {
+            var files = Directory.GetFiles(dir, "*.*", SearchOption.AllDirectories);
+            Array.Sort(files, StringComparer.OrdinalIgnoreCase);
+            using var sha = SHA256.Create();
+            foreach (var f in files)
+            {
+                // incorporate relative path to detect structure changes
+                var rel = Path.GetRelativePath(dir, f).Replace(Path.DirectorySeparatorChar, '/');
+                var relBytes = System.Text.Encoding.UTF8.GetBytes(rel);
+                sha.TransformBlock(relBytes, 0, relBytes.Length, relBytes, 0);
+
+                using var stream = File.OpenRead(f);
+                var buffer = new byte[8192];
+                int read;
+                while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    sha.TransformBlock(buffer, 0, read, buffer, 0);
+                }
+            }
+            // finalize
+            sha.TransformFinalBlock([], 0, 0);
+            return BitConverter.ToString(sha.Hash!).Replace("-", "").ToLowerInvariant();
+        }
+        static void CheckAndOfferUpdate(string modname)
+        {
+            string modpath = Path.Combine(modspath, modname);
+            string sigpath = Path.Combine(modpath, sourcesigfile);
+            if (!File.Exists(sigpath))
+            {
+                Sonstiges.DebugText("Auto Update: No source signature found for mod: " + modname);
+                return;
+            }
+
+            var lines = File.ReadAllLines(sigpath);
+            List<string> changed = [];
+            foreach (var line in lines)
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+                var parts = line.Split('|', 2);
+                if (parts.Length != 2)
+                    continue;
+                var src = parts[0];
+                var saved = parts[1];
+                string current = "MISSING";
+                try
+                {
+                    if (File.Exists(src))
+                        current = ComputeFileHash(src);
+                    else if (Directory.Exists(src))
+                        current = ComputeDirectoryHash(src);
+                    else
+                        current = "MISSING";
+                }
+                catch
+                {
+                    current = "ERROR";
+                }
+                if (!string.Equals(saved, current, StringComparison.OrdinalIgnoreCase))
+                    changed.Add(src);
+            }
+
+            if (changed.Count > 0)
+            {
+                IO.ShowMessage("mods.menu.update.available", [modname]);
+                foreach (var c in changed)
+                    Console.WriteLine("- " + c);
+
+                if (IO.YesOrNoPrompt(Localization.T("mods.menu.autoupdate.prompt")))
+                {
+                    Sonstiges.DebugText($"User accepted autoupdate for mod {modname}");
+                    UpdateMod(modname);
+                }
+                else
+                {
+                    Sonstiges.DebugText($"User declined autoupdate for mod {modname}");
+                }
+            }
+            else
+            {
+                Sonstiges.DebugText("No changes detected for mod: " + modname);
+            }
+        }
+        static string[]? PickFilesOrFolderDialog()
+        {
+            Sonstiges.DebugText("Öffne Datei/Ordner Auswahl Dialog...");
+            string[]? result = null;
+            var t = new Thread(() =>
+            {
+                try
+                {
+                    using (var fbd = new FolderBrowserDialog())
+                    {
+                        fbd.Description = "Select folder";
+                        var dr2 = fbd.ShowDialog();
+                        if (dr2 == DialogResult.OK)
+                        {
+                            result = [fbd.SelectedPath];
+                            return;
+                        }
+                    }
+                    if (result == null || result.Length == 0)
+                    {
+                        using var ofd = new OpenFileDialog();
+                        ofd.Multiselect = true;
+                        ofd.Filter = "Zip files (*.zip)|*.zip|All files|*.*";
+                        var dr = ofd.ShowDialog();
+                        if (dr == DialogResult.OK)
+                        {
+                            result = ofd.FileNames;
+                            return;
+                        }
+                    }
+                    // user cancelled both
+                    result = [];
+                }
+                catch (Exception ex)
+                {
+                    Sonstiges.DebugText("Picker exception: " + ex.Message);
+                    result = Array.Empty<string>();
+                }
+            });
+            t.SetApartmentState(ApartmentState.STA);
+            t.Start();
+            t.Join();
+            if (result == null || result.Length == 0)
+                return null;
+            return result;
+        }
+        public static void OpenDefaultModsFolder()
+        {
+            Sonstiges.DebugText("Öffne Standard Mods Ordner...");
+            if (!Directory.Exists(Modtool.defaultmodspath))
+                Directory.CreateDirectory(Modtool.defaultmodspath);
+            Process.Start("explorer.exe", Modtool.defaultmodspath);
         }
     }
 }

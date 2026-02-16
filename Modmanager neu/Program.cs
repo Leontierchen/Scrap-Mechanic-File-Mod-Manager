@@ -69,6 +69,7 @@ namespace Modmanager_neu
                     Console.WriteLine($"[Debug]  {prop.Name}: {value}");
                 }
             }
+
             else
             {
                 Console.WriteLine("[Debug] Keine gültige Konfiguration gefunden.");
@@ -80,6 +81,7 @@ namespace Modmanager_neu
                 config = new Config();
             }
 
+            Directory.CreateDirectory(Modtool.defaultmodspath);
             Localization.Init(config.Language ?? Masterlanguage);
             SaveConfig(config);
             // ----------- ende config -----------
@@ -668,6 +670,7 @@ namespace Modmanager_neu
             public string? GamePath { get; set; } = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Scrap Mechanic";
             public bool Debug { get; set; } = false;
             public bool AutoCheckForUpdates { get; set; } = true;
+            public bool UseDefaultMods { get; set; } = true;
         }
     }
 }

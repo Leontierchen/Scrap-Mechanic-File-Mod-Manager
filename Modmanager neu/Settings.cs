@@ -70,7 +70,7 @@ namespace Modmanager_neu
 
             while (true)
             {
-                
+
                 string input = IO.Handleinput(q: true);
 
                 if (input.Equals("Q", StringComparison.OrdinalIgnoreCase))
@@ -100,14 +100,27 @@ namespace Modmanager_neu
         {
             if (config.Debug)
                 config.Debug = false;
-            else 
+            else
                 config.Debug = true;
 
             SaveConfig(config);
             IsDebug = config.Debug;
-            IO.ShowMessage("settings.debug.changed", [IsDebug.ToString()]);
-
-            IO.WaitForKeypress();
+        }
+        public static void ToggleAutoCheckUpdates()
+        {
+            if (config.AutoCheckForUpdates)
+                config.AutoCheckForUpdates = false;
+            else
+                config.AutoCheckForUpdates = true;
+            SaveConfig(config);
+        }
+        public static void ToggleDefaultMods()
+        {              
+            if (config.UseDefaultMods)
+                config.UseDefaultMods = false;
+            else
+                config.UseDefaultMods = true;
+            SaveConfig(config);
         }
     }
 }

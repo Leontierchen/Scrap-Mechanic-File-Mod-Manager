@@ -3,5 +3,6 @@
   "SteamID": "User_xxxxxxxxxxxxx",
   "GamePath": "",
   "Debug": false,
-  "AutoCheckForUpdates": true
+  "AutoCheckForUpdates": true,
+  "UseDefaultMods": true
 }

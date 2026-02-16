@@ -1,16 +1,16 @@
 ﻿using Microsoft.Win32;
+using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using System.Runtime.Versioning;
 using System.Text;
 using System.Text.RegularExpressions;
 using static Modmanager_neu.Program;
 
 namespace Modmanager_neu
 {
-    [SupportedOSPlatform("windows")]
     internal class Sonstiges
     {
+        
         public static void Contacts() 
         { 
             DebugText("Showing contact info");
@@ -63,10 +63,11 @@ namespace Modmanager_neu
         public class TeeTextWriter(TextWriter first, TextWriter second) : TextWriter
         {
             private readonly TextWriter _first = first;
-            private readonly TextWriter _second = second;
+            public readonly TextWriter _second = second;
 
             public override Encoding Encoding => Encoding.UTF8;
 
+            
             public override void Write(char value)
             {
                 // write via native console if possible to ensure Unicode glyphs
@@ -340,7 +341,6 @@ namespace Modmanager_neu
             }
         }
     }
-    [SupportedOSPlatform("windows")]
     public static class SteamLibraryFinder
     {
         public static List<string> GetAllSteamGameFolders()
@@ -398,7 +398,6 @@ namespace Modmanager_neu
             return null;
         }
     }
-    [SupportedOSPlatform("windows")]
     public static class IO
     {
         public static void WaitForKeypress()

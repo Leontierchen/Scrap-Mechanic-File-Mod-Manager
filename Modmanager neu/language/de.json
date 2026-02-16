@@ -83,9 +83,10 @@
   "mods.menu.new.mod.name.empty": "❌ Keine eingabe, erneut versuchen.",
   "mods.menu.new.mod.name.exists": "❌ Diese Mod existiert bereits, bitte nimm einen anderen Namen",
 
-  "mods.menu.new.mod.path.prompt": "Bitte gib den Pfad zu der Mod ein (Ordnerpfad oder Dateipfad mit .zip dateinamen) \nMit Enter bestätigen.",
+  "mods.menu.new.mod.path.prompt": "Bitte wähle die \"Ordnerfade\" oder einzelne \".zip\" Dateien zu der Mod aus.",
   "mods.menu.new.mod.path.invalid": "❌ Der angegebene Pfad ist ungültig oder existiert nicht. Bitte überprüfe ihn und versuche es erneut.",
   "mods.menu.new.mod.path.empty": "❌ Keine eingabe, erneut versuchen.",
+  "mods.menu.new.mod.path.accepted": "Eingabe akzeptiert: {0}",
 
   "mods.menu.new.mod.extract.zip": "Die zip Datei wird extrahiert...",
   "mods.menu.new.mod.extract.zip.done": "✅ Die zip Datei wurde erfolgreich extrahiert.",
@@ -125,8 +126,15 @@
   "mods.menu.update.check.paths.done": "Die überprüfung der Pfade ist abgeschlossen. Diese Pfade werden genutzt: ",
   "mods.menu.update.confirm": "Willst du fortfahren?",
 
-  "mods.menu.update.available": "Es gibt ein Update für diese Filemod. Hier die geänderten Dateien:",
+  "mods.menu.update.available": "Es gibt ein Update für diese Filemod.",
   "mods.menu.autoupdate.prompt": "Möchtest du das automatische Update durchführen?",
+
+  "default.mods.menu.title": "Default Mods Einstellungen",
+  "default.mods.menu.subtext": "Hier kannst du einstellen, ob Mods, die im \"default_mods\" Ordner abgelegt wurden, auch aktiviert werden sollen.\nAktuell: {0}",
+  "default.mods.options": [
+    "Zustand Umschalten",
+    "Öffne den \"default_mods\" ordner"
+  ],
 
   "menu.go.back.esc": "\nESC) Vorheriges Menü",
   "menu.go.back.q": "\nQ) Vorheriges Menü (abbrechen)",
@@ -139,14 +147,9 @@
 
   "settings.menu.title": "Einstellungen",
   "setting.menu.subtext": "Kann auch in der Config.json geändert werden",
-  "settings.menu.options": [
-    "Sprache ändern / Change Language",
-    "Debug ausgabe umschalten"
-  ],
   "settings.language.select": "--- Sprache auswählen ---",
   "settings.language.changed": "Sprache geändert zu: {0}",
   "settings.language.no.files": "⚠ Keine Sprachdateien gefunden ⚠",
-  "settings.debug.changed": "Die Debugausgabe wurde geändert: {0}",
 
   "delete.all.prompt": "⚠ Willst du wirklich alle löschen?",
   "delete.all.done": "✅ Alle einträge wurden gelöscht.",

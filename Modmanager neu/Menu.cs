@@ -1,4 +1,5 @@
 ﻿using Modmanager_neu;
+using System.Diagnostics;
 using System.Runtime.Versioning;
 using static Modmanager_neu.Program;
 
@@ -22,7 +23,7 @@ internal static class Menu
             titleKey: "main.menu.title",
             subTextKey: "main.menu.subtext",
             subTextArg: "currentmod",
-            optionsKey: "main.menu.options",
+            optionsKey: ["main.menu.options"],
             actions:
             [
                 OpenBackupMenu,
@@ -43,10 +44,11 @@ internal static class Menu
 
         PushMenu(() =>
             ShowMenu(
-                "backup.menu.title",
-                "backup.menu.subtext",
-                "lastbackup",
-                "backup.menu.options",
+                titleKey: "backup.menu.title",
+                subTextKey: "backup.menu.subtext",
+                subTextArg: "lastbackup",
+                optionsKey: ["backup.menu.options"],
+                actions:
                 [
                     BackupManager.CreateBackup,
                     BackupManager.LoadBackup,
@@ -66,7 +68,7 @@ internal static class Menu
                 "outfit.menu.title",
                 "outfit.menu.subtext",
                 "currentoutfit",
-                "outfit.menu.options",
+                ["outfit.menu.options"],
                 [
                     OutfitManager.SaveOutfit,
                     OutfitManager.LoadOutfit,
@@ -86,7 +88,7 @@ internal static class Menu
                 "mods.menu.title",
                 "mods.menu.subtext",
                 "currentmod",
-                "mods.menu.options",
+                ["mods.menu.options"],
                 [
                     Modtool.SwitchMod,
                     () => Modtool.AddMod(), // Lambda-Ausdruck verwendet
@@ -105,22 +107,47 @@ internal static class Menu
     {
         PushMenu(() =>
            ShowMenu(
-               "settings.menu.title",
-               "setting.menu.subtext",
-               "",
-               "settings.menu.options",
+               titleKey: "settings.menu.title",
+               subTextKey: "setting.menu.subtext",
+               subTextArg: "",
+               optionsKey: 
+               [
+                    "🌐 Change Language: \"{0}\"",
+                    "Auto Update Check: \"{0}\"",
+                    "Default Mods: \"{0}\"",
+                    "Debug: \"{0}\""
+                ],
+               actions: 
                [
                    Settings.LanguageSelection,
+                   Settings.ToggleAutoCheckUpdates,
+                   OpenDefaultModsMenu,
                    Settings.Toggledebug
                ]
            )
        );
     }
-
+    public static void OpenDefaultModsMenu()
+    {
+        PushMenu(() =>
+           ShowMenu(
+               titleKey: "default.mods.menu.title",
+               subTextKey: "default.mods.menu.subtext",
+               subTextArg: "defaultmods",
+               optionsKey:
+               ["default.mods.options"],
+               actions:
+               [
+                   Settings.ToggleDefaultMods,
+                   Modtool.OpenDefaultModsFolder
+               ]
+           )
+       );
+    }
     // -------------------------
     // MENU CORE
     // -------------------------
-    public static void ShowMenu(string titleKey,string subTextKey,object? subTextArg,string optionsKey,Action[] actions)
+    public static void ShowMenu(string titleKey,string subTextKey,object? subTextArg,string[] optionsKey,Action[] actions)
     {
         int loopCount = 0; // logging loop counter
         while (true)
@@ -147,6 +174,8 @@ internal static class Menu
                         subTextArg2 = Modtool.GetCurrentMod();
                     else if (sub == "currentoutfit")
                         subTextArg2 = OutfitManager.GetCurrentOutfit();
+                    else if (sub == "defaultmods")
+                        subTextArg2 = Convert.ToString(config.UseDefaultMods);
                     else
                         subTextArg2 = subTextArg;
 
@@ -156,9 +185,14 @@ internal static class Menu
                     Console.WriteLine(Localization.T(subTextKey));
             }
             Console.WriteLine();
-
-            var options = Localization.TArray(optionsKey);
+            
+            string[] options;
+            if (optionsKey.Length ==1)
+                options = Localization.TArray(optionsKey[0]); // returnt array aus lang file
+            else
+                options = optionsKey; // direkt aus parameter
             int emptyline = 0;
+            string text = "error";
             for (int i = 0; i < options.Length; i++)
             {
                 if (string.IsNullOrWhiteSpace(options[i]))
@@ -169,7 +203,23 @@ internal static class Menu
                 else
                 {
                     int a = i - emptyline;
-                    Console.WriteLine($"{a + 1}) {options[i]}");
+                    if (options[i].Contains("{0}"))
+                    {
+                        string? arg = null;
+                        if (options[i].Contains("Debug")) // debug
+                            arg = Convert.ToString(config.Debug);
+                        else if (options[i].Contains("Language")) // Sprache
+                            arg = Convert.ToString(config.Language);
+                        else if (options[i].Contains("Update")) // Auto-Update
+                            arg = Convert.ToString(config.AutoCheckForUpdates);
+                        else if (options[i].Contains("Default Mods")) // Default-Mods
+                            arg = Convert.ToString(config.UseDefaultMods);
+                        if (!string.IsNullOrEmpty(arg))
+                            text = $"{a + 1}) {string.Format(Localization.T(options[i]), arg)}";
+                    }
+                    else
+                        text = $"{a + 1}) {options[i]}";
+                    Console.WriteLine(text);
                 }
             }
             if (MenuStack.Count > 0)
@@ -215,6 +265,8 @@ internal static class Menu
                 return true;
             }
             // Ungültige Taste 
+
+            Console.WriteLine(key.KeyChar);
             IO.ShowMessage("menu.wrong.keypress");
             //System.Threading.Thread.Sleep(1500);
         }

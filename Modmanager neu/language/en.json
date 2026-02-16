@@ -124,6 +124,10 @@
   "mods.menu.update.check.paths.done": "Path verification is complete. These paths will be used: ",
   "mods.menu.update.confirm": "Do you want to continue?",
 
+  "mods.menu.update.available": "An update is available for the mod.",
+  "mods.menu.autoupdate.prompt": "Do you want to update now?",
+
+
   "menu.go.back.esc": "\nESC) Previous Menu",
   "menu.go.back.q": "\nQ) Previous Menu (cancel)",
   "menu.exit.esc": "\nESC) Exit Program",

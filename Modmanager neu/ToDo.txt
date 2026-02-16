@@ -1,0 +1,2 @@
+Default mods ist in den einstellungen drin, muss aber noch installierbar werden. Heißt, nach eigentlicher mod aktivierung kommt eine separate aktivierung nur für die default mods. Mit eigenem backup etc. 
+So kann sichergestellt werden, dass selbst wenn man den schalter auf false setzt, die mods sofort deinstalliert werden und sogar die vorherigen mod dateien wiederhergestellt werden. Es ist somit sehr sicher
