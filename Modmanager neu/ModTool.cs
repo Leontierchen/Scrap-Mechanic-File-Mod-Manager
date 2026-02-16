@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.Design;
 using System.IO.Compression;
 using System.Runtime.Versioning;
+using System.Security.Cryptography;
 using static Modmanager_neu.Program;
 
 namespace Modmanager_neu
@@ -15,6 +16,8 @@ namespace Modmanager_neu
         public static readonly string vanillapath = Path.Combine(gamepath, modtool, "vanilla");
         public static readonly string contentsfile = "contents.txt";
         public static readonly string modlistsfile = "modlist.txt";
+        // new: file that stores source signatures
+        public static readonly string sourcesigfile = "sourcesig.txt";
         public static string GetCurrentMod()
         {
             Sonstiges.DebugText("Starte Ermittlung des aktuellen Mods...");
@@ -160,7 +163,7 @@ namespace Modmanager_neu
                 }
                 Sonstiges.DebugText("Modname akzeptiert: " + modname);
             }
-            else
+            else // Update eines bestehenden Mods, übergebe den alten Modnamen und die neuen Pfade, damit der Mod mit den neuen Pfaden neu erstellt wird.
             {
                 if (string.IsNullOrEmpty(updatename) || updatepaths == null)
                     WriteLogAndExit(12, "Modname oder Modpfade für Update sind null oder leer."); //Fehler, wenn der Modname oder die Modpfade für ein Update nicht übergeben wurden
@@ -248,6 +251,34 @@ namespace Modmanager_neu
             }
             //document all mods and files into text files inside the mod folder
             File.WriteAllLines(Path.Combine(modnamepath, modlistsfile), [.. modslist]);
+
+            // New: create source signatures for all entries in modslist
+            try
+            {
+                List<string> sourcesigs = [];
+                foreach (string src in modslist)
+                {
+                    string sig = string.Empty;
+                    try
+                    {
+                        if (File.Exists(src))
+                            sig = ComputeFileHash(src);
+                        else if (Directory.Exists(src))
+                            sig = ComputeDirectoryHash(src);
+                        else
+                            sig = "MISSING";
+                    }
+                    catch { sig = "ERROR"; }
+                    sourcesigs.Add($"{src}|{sig}");
+                }
+                File.WriteAllLines(Path.Combine(modnamepath, sourcesigfile), [.. sourcesigs]);
+            }
+            catch (Exception ex)
+            {
+                // don't fail the whole operation for signature errors, but log and continue
+                Sonstiges.DebugText("Warning: Could not write source signatures: " + ex.Message);
+            }
+
             string[] files = Directory.GetFiles(modfiles, ".", SearchOption.AllDirectories);
             for (int i = 0; i < files.Length; i++)
             {
@@ -264,12 +295,12 @@ namespace Modmanager_neu
         internal static void SwitchMod() // menu option
         {
             Sonstiges.DebugText("Starte Wechsel des aktiven Mods...");
-            string activemod = GetCurrentMod(); //gibt den aktuell aktiven mod zurück, oder "Vanilla" wenn kein mod aktiv ist
-            string option = IO.Picker("mods.menu.change.active.mod.prompt", modspath, activemod, true); //gibt den ausgewählten mod zurück
+            string activemod = GetCurrentMod(); //gibt der aktuell aktiven mod zurück, oder "Vanilla" wenn kein mod aktiv ist
+            string option = IO.Picker("mods.menu.change.active.mod.prompt", modspath, activemod, true); //gibt der ausgewählten mod zurück
             Sonstiges.DebugText($"Activemod: {activemod} ... Option: {option}");
             if (string.IsNullOrEmpty(option)||option == "exit")
                 return; 
-            else if (option == "no enries")
+            else if (option == "no entries")
             {
                 IO.ShowMessage("mods.menu.no.mods");
                 IO.WaitForKeypress();
@@ -277,6 +308,19 @@ namespace Modmanager_neu
             }
             else
             {
+                if (config.AutoCheckForUpdates)
+                {
+                    Sonstiges.DebugText("Auto-Update Check aktiviert. Prüfe auf Änderungen in den Modquellen...");
+                    try
+                    {
+                        CheckAndOfferUpdate(option);
+                    }
+                    catch (Exception ex)
+                    {
+                        Sonstiges.DebugText("Update-Check fehlgeschlagen: " + ex.Message);
+                    }
+                }
+
                 if (option == "Vanilla" && activemod != "Vanilla") //vanilla restore
                 {
                     ModToVanilla(activemod);
@@ -306,13 +350,121 @@ namespace Modmanager_neu
             IO.WaitForKeypress();
             return;
         }
-        internal static void UpdateMod() // menu option
+
+        // New: compute SHA256 for a file
+        static string ComputeFileHash(string path)
+        {
+            using (var sha = SHA256.Create())
+            using (var stream = File.OpenRead(path))
+            {
+                var hash = sha.ComputeHash(stream);
+                return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+            }
+        }
+
+        // New: compute combined SHA256 for a directory by hashing each file and combining
+        static string ComputeDirectoryHash(string dir)
+        {
+            var files = Directory.GetFiles(dir, "*.*", SearchOption.AllDirectories);
+            Array.Sort(files, StringComparer.OrdinalIgnoreCase);
+            using (var sha = SHA256.Create())
+            {
+                foreach (var f in files)
+                {
+                    // incorporate relative path to detect structure changes
+                    var rel = Path.GetRelativePath(dir, f).Replace(Path.DirectorySeparatorChar, '/');
+                    var relBytes = System.Text.Encoding.UTF8.GetBytes(rel);
+                    sha.TransformBlock(relBytes, 0, relBytes.Length, relBytes, 0);
+
+                    using (var stream = File.OpenRead(f))
+                    {
+                        var buffer = new byte[8192];
+                        int read;
+                        while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
+                        {
+                            sha.TransformBlock(buffer, 0, read, buffer, 0);
+                        }
+                    }
+                }
+                // finalize
+                sha.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
+                return BitConverter.ToString(sha.Hash!).Replace("-", "").ToLowerInvariant();
+            }
+        }
+
+        // New: check sourcesig for a mod and offer update if changed
+        static void CheckAndOfferUpdate(string modname)
+        {
+            string modpath = Path.Combine(modspath, modname);
+            string sigpath = Path.Combine(modpath, sourcesigfile);
+            if (!File.Exists(sigpath))
+            {
+                Sonstiges.DebugText("Auto Update: No source signature found for mod: " + modname);
+                return;
+            }
+
+            var lines = File.ReadAllLines(sigpath);
+            List<string> changed = [];
+            foreach (var line in lines)
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+                var parts = line.Split('|', 2);
+                if (parts.Length != 2)
+                    continue;
+                var src = parts[0];
+                var saved = parts[1];
+                string current = "MISSING";
+                try
+                {
+                    if (File.Exists(src))
+                        current = ComputeFileHash(src);
+                    else if (Directory.Exists(src))
+                        current = ComputeDirectoryHash(src);
+                    else
+                        current = "MISSING";
+                }
+                catch
+                {
+                    current = "ERROR";
+                }
+                if (!string.Equals(saved, current, StringComparison.OrdinalIgnoreCase))
+                    changed.Add(src);
+            }
+
+            if (changed.Count > 0)
+            {
+                IO.ShowMessage("mods.menu.update.available", [modname]);
+                foreach (var c in changed)
+                    Console.WriteLine("- " + c);
+
+                if (IO.YesOrNoPrompt(Localization.T("mods.menu.autoupdate.prompt")))
+                {
+                    Sonstiges.DebugText($"User accepted autoupdate for mod {modname}");
+                    UpdateMod(modname);
+                }
+                else
+                {
+                    Sonstiges.DebugText($"User declined autoupdate for mod {modname}");
+                }
+            }
+            else
+            {
+                Sonstiges.DebugText("No changes detected for mod: " + modname);
+            }
+        }
+
+        internal static void UpdateMod(string? autoupdatename = null) // menu option
         {
             string activemod = GetCurrentMod();
-            string option = IO.Picker("mods.menu.update.prompt", modspath, activemod, false, false, true);
+            string? option; 
+            if (autoupdatename == null)
+                option = IO.Picker("mods.menu.update.prompt", modspath, activemod, false, false, true);
+            else
+                option = autoupdatename;
             if (string.IsNullOrEmpty(option) || option == "exit")
                 return;
-            else if (option == "no enries")
+            else if (option == "no entries")
                 IO.ShowMessage("mods.menu.no.mods");
             else
             {
@@ -333,75 +485,82 @@ namespace Modmanager_neu
                 }
                 else
                 {
+                    
                     IO.ShowMessage("mods.menu.update.progress.start", [option]);
 
                     List<string> updatepaths = [];
-                    for (int i = 0; i < modpaths.Length; i++) //prüft alle pfade, die hinterlegt wurden
+                    if (autoupdatename == null)
                     {
-                        bool isvalid = false;
-                        if (IO.YesOrNoPrompt(Localization.T("mods.menu.update.check.paths.prompt") + "\n--"+ modpaths[i]+"\n")) //user sagt ja, pfad stimmt
+                        for (int i = 0; i < modpaths.Length; i++) //prüft alle pfade, die hinterlegt wurden
                         {
-                            if (!File.Exists(modpaths[i]) && !Directory.Exists(modpaths[i])) //pfad existiert aber nicht mehr
+                            bool isvalid = false;
+                            if (IO.YesOrNoPrompt(Localization.T("mods.menu.update.check.paths.prompt") + "\n--" + modpaths[i] + "\n")) //user sagt ja, pfad stimmt
                             {
-                                IO.ShowMessage("mods.menu.update.check.pathnolongerexists");
-                            }
-                            else //pfad existiert noch, füge zur update liste hinzu
-                            {
-                                isvalid = true;
-                                updatepaths.Add(modpaths[i]);
-                            }
-                        }
-                        else //user sagt nein, pfad stimmt nicht
-                        {
-                            if (!IO.YesOrNoPrompt(Localization.T("mods.menu.update.check.asktofixpath"))) //fragen, ob der Pfad korrigiert werden soll
-                                isvalid = true; //nein, entferne ihn
-                        }
-                        if (isvalid == false) //pfad muss aktualisiert werden
-                        {
-                            bool validpath = false;
-                            while (validpath == false)
-                            {
-                                IO.ShowMessage("mods.menu.new.mod.path.prompt");
-                                string? inputpath = IO.Handleinput(q: true);
-                                if (inputpath != null)
+                                if (!File.Exists(modpaths[i]) && !Directory.Exists(modpaths[i])) //pfad existiert aber nicht mehr
                                 {
-                                    Console.WriteLine();
-                                    switch (inputpath)
-                                    {
-                                        case "Q" or "q":
-                                            Sonstiges.DebugText("Modnamen Eingabe abgebrochen durch Nutzer."); //eingabe abgebrochen, kein pfad wird in update liste geschrieben
-                                            return;
-                                        case "":
-                                            IO.ShowMessage("mods.menu.new.mod.path.empty");
-                                            break;
-                                        case string s when s.IndexOfAny(Path.GetInvalidPathChars()) >= 0:
-                                            IO.ShowMessage("mods.menu.new.mod.path.invalid");
-                                            break;
-                                        default:
-                                            if (Directory.Exists(inputpath) || File.Exists(inputpath))
-                                            {
-                                                validpath = true; // eingabe ok, füge zur liste hinzu
-                                                updatepaths.Add(inputpath);
-                                                break;
-                                            }
-                                            else
-                                            {
-                                                IO.ShowMessage("mods.menu.new.mod.path.invalid"); //eingabe ungültig, neu versuchen
-                                                break;
-                                            }
-                                    }
+                                    IO.ShowMessage("mods.menu.update.check.pathnolongerexists");
                                 }
-                                else
-                                    IO.ShowMessage("mods.menu.new.mod.path.invalid");
+                                else //pfad existiert noch, füge zur update liste hinzu
+                                {
+                                    isvalid = true;
+                                    updatepaths.Add(modpaths[i]);
+                                }
+                            }
+                            else //user sagt nein, pfad stimmt nicht
+                            {
+                                if (!IO.YesOrNoPrompt(Localization.T("mods.menu.update.check.asktofixpath"))) //fragen, ob der Pfad korrigiert werden soll
+                                    isvalid = true; //nein, entferne ihn
+                            }
+                            if (isvalid == false) //pfad muss aktualisiert werden
+                            {
+                                bool validpath = false;
+                                while (validpath == false)
+                                {
+                                    IO.ShowMessage("mods.menu.new.mod.path.prompt");
+                                    string? inputpath = IO.Handleinput(q: true);
+                                    if (inputpath != null)
+                                    {
+                                        Console.WriteLine();
+                                        switch (inputpath)
+                                        {
+                                            case "Q" or "q":
+                                                Sonstiges.DebugText("Modnamen Eingabe abgebrochen durch Nutzer."); //eingabe abgebrochen, kein pfad wird in update liste geschrieben
+                                                return;
+                                            case "":
+                                                IO.ShowMessage("mods.menu.new.mod.path.empty");
+                                                break;
+                                            case string s when s.IndexOfAny(Path.GetInvalidPathChars()) >= 0:
+                                                IO.ShowMessage("mods.menu.new.mod.path.invalid");
+                                                break;
+                                            default:
+                                                if (Directory.Exists(inputpath) || File.Exists(inputpath))
+                                                {
+                                                    validpath = true; // eingabe ok, füge zur liste hinzu
+                                                    updatepaths.Add(inputpath);
+                                                    break;
+                                                }
+                                                else
+                                                {
+                                                    IO.ShowMessage("mods.menu.new.mod.path.invalid"); //eingabe ungültig, neu versuchen
+                                                    break;
+                                                }
+                                        }
+                                    }
+                                    else
+                                        IO.ShowMessage("mods.menu.new.mod.path.invalid");
+                                }
                             }
                         }
+                        IO.ShowMessage("mods.menu.update.check.paths.done");
+                        foreach (string item in updatepaths)
+                        {
+                            Console.WriteLine("-- " + item);
+                        }
                     }
-                    IO.ShowMessage("mods.menu.update.check.paths.done");
-                    foreach (string item in updatepaths)
-                    {
-                        Console.WriteLine("-- " + item);
-                    }
-                    if (IO.YesOrNoPrompt(Localization.T("mods.menu.update.confirm")))// alle pfade geprüft, bestätigung bevor fortgefahren wird
+                    else
+                        updatepaths = [.. modpaths]; //bei autoupdate werden die alten Pfade automatisch übernommen, da ja nur geprüft werden soll, ob sie noch gültig sind oder aktualisiert werden müssen.
+
+                    if (autoupdatename != null || IO.YesOrNoPrompt(Localization.T("mods.menu.update.confirm")))// alle pfade geprüft, bestätigung bevor fortgefahren wird
                     {
                         Sonstiges.DebugText("Alle Pfade geprüft. Starte Update...");
 
@@ -436,7 +595,7 @@ namespace Modmanager_neu
             string? newname = string.Empty;
             if (string.IsNullOrEmpty(option) || option == "exit") //Abfrage, ob gültige Option ausgewählt wurde, oder ob Nutzer zurückgehen wollte
                 return;
-            else if (option == "no enries") // Abfrage, ob überhaupt Mods zum umbenennen vorhanden sind
+            else if (option == "no entries") // Abfrage, ob überhaupt Mods zum umbenennen vorhanden sind
             {
                 IO.ShowMessage("mods.menu.no.mods");
                 IO.WaitForKeypress();
@@ -510,6 +669,12 @@ namespace Modmanager_neu
             Sonstiges.DebugText($"Activemod: {activemod} ... Option: {option}");
             if (string.IsNullOrEmpty(option)||option=="exit")
                 return;
+            else if (option == "no entries") // Abfrage, ob überhaupt Mods zum umbenennen vorhanden sind
+            {
+                IO.ShowMessage("mods.menu.no.mods");
+                IO.WaitForKeypress();
+                return;
+            }
             else
             {
                 if (option == "all")

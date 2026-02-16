@@ -31,6 +31,9 @@ namespace Modmanager_neu
 
         static void Main()
         {
+            AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit; // Sicherstellen, dass auch bei einem erzwungenen Shutdown (z.B. durch Task-Manager) ein Log geschrieben wird
+            Console.CancelKeyPress += Console_CancelKeyPress; // Sicherstellen, dass bei STRG+C ein Log geschrieben wird
+
 
             config = LoadConfig() ?? new Config();
             IsDebug = config.Debug;
@@ -89,6 +92,24 @@ namespace Modmanager_neu
             else
                 WriteLogAndExit(0, "0"); // exit code 0 = log and exit immediately
             // ----------- ende main -----------
+        }
+        private static void CurrentDomain_ProcessExit(object? sender, EventArgs e)
+        {
+            // Minimales Logging bei erzwungenem Shutdown
+            try
+            {
+                var content = _logBuffer?.ToString() ?? string.Empty;
+                content = $"Timestamp: {DateTime.Now:O}\nExitCode: Forced\n\n" + content;
+                Directory.CreateDirectory(logspath);
+                string filename = $"run_{DateTime.Now:yyyyMMdd_HHmmss}.log";
+                File.WriteAllText(Path.Combine(logspath, filename), content, Encoding.UTF8);
+            }
+            catch { }
+        }
+        private static void Console_CancelKeyPress(object? sender, ConsoleCancelEventArgs e)
+        {
+            e.Cancel = true; // Verhindert sofortiges Beenden
+            WriteLogAndExit(0, "user.cancelled");
         }
         public static void WriteLogAndExit(int exitCode, string ex = "")
         {
@@ -646,6 +667,7 @@ namespace Modmanager_neu
             public string? SteamID { get; set; } = "User_xxxxxxxxxxxxxx";
             public string? GamePath { get; set; } = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Scrap Mechanic";
             public bool Debug { get; set; } = false;
+            public bool AutoCheckForUpdates { get; set; } = true;
         }
     }
 }

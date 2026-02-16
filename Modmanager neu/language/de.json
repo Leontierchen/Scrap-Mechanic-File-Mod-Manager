@@ -63,7 +63,7 @@
     "Neue Mod hinzufügen",
     "Mod aktualisieren",
     "Mod umbenennen",
-    "Mod deinstallieren"
+    "Mod löschen"
   ],
   "mods.menu.change.active.mod.prompt": "Welche Mod soll aktiviert werden? (Mit Enter bestätigen)",
   "mods.menu.no.mods": "⚠ Keine Mods gefunden. Bitte füge zuerst eine Mod hinzu ⚠",
@@ -99,6 +99,7 @@
   "mods.menu.remove.mod.prompt": "Welche Mod möchtet du löschen? (mit Enter bestätigen)",
   "mods.menu.remove.mod.active.warn": "Die ausgewählte Mod ist aktuell aktiv. Wenn du sie löschst, wird sie vorher deaktiviert. Bist du dir sicher, dass du das tun möchtest?",
   "mods.menu.remove.mod.all.warn": "⚠ Achtung, du willst alle Mods deaktivieren und löschen! Ist das richtig? Du kannst es nicht Rückgängig machen.",
+  "mods.menu.remove.mod.progress": "Die Mod {0} wird gelöscht...",
   "mods.menu.remove.mod.done": "✅ Mod \"{0}\" wurde gelöscht.",
   "mods.menu.remove.mod.all.finished": "✅ Alle Mods wurden deakiviert und gelöscht.",
 
@@ -123,6 +124,9 @@
   "mods.menu.update.check.asktofixpath": "Möchtest du den Pfad aktuallisieren? Wenn nicht, wird er entfernt.",
   "mods.menu.update.check.paths.done": "Die überprüfung der Pfade ist abgeschlossen. Diese Pfade werden genutzt: ",
   "mods.menu.update.confirm": "Willst du fortfahren?",
+
+  "mods.menu.update.available": "Es gibt ein Update für diese Filemod. Hier die geänderten Dateien:",
+  "mods.menu.autoupdate.prompt": "Möchtest du das automatische Update durchführen?",
 
   "menu.go.back.esc": "\nESC) Vorheriges Menü",
   "menu.go.back.q": "\nQ) Vorheriges Menü (abbrechen)",

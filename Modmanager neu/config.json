@@ -1,6 +1,7 @@
 {
-  "Language": "en",
+  "Language": "de",
   "SteamID": "User_xxxxxxxxxxxxx",
   "GamePath": "",
-  "Debug": false
+  "Debug": false,
+  "AutoCheckForUpdates": true
 }

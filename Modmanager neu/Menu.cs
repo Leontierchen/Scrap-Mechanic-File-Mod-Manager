@@ -90,7 +90,7 @@ internal static class Menu
                 [
                     Modtool.SwitchMod,
                     () => Modtool.AddMod(), // Lambda-Ausdruck verwendet
-                    Modtool.UpdateMod,
+                    () => Modtool.UpdateMod(),
                     Modtool.RenameMod,
                     Modtool.RemoveMod
                 ]
