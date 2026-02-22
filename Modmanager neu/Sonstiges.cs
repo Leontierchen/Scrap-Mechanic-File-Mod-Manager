@@ -21,8 +21,13 @@ namespace Modmanager_neu
         }
         public static void DebugText(string text)
         {
-            if (IsDebug)
-                Console.WriteLine("[Debug] " + text);
+            if (text != null)
+            {
+                if (IsDebug)
+                    Console.WriteLine("[Debug] " + text);
+                else
+                    _logBuffer?.WriteLine("[Debug] " + text);
+            }
         }
         public static string[] SortArray(string[] array)
         {
@@ -557,5 +562,6 @@ namespace Modmanager_neu
         }
 
     }
+    
 }
 

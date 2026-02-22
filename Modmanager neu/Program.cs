@@ -1,12 +1,14 @@
 ﻿using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text;
 using System.Text.Json;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Modmanager_neu
 {
     [SupportedOSPlatform("windows")]
-    class Program ()
+    class Program()
     {
 
         public static readonly string AppName = "Scrap Mechanic File-Mod Manager";
@@ -14,28 +16,33 @@ namespace Modmanager_neu
         public static readonly string Masterlanguage = "de";
         public static bool IsDebug { get; set; } = true;
         public static bool langfallback = false;
-
+        // Globale Instanzen für Config und States, damit sie überall im Programm zugänglich sind
         public static Config config { get; set; } = null!;
-        
-        
+        public static States states { get; set; } = null!;
+
+        // Standardpfade
         public static readonly string logspath = Path.Combine(AppContext.BaseDirectory, "logs");
         public static readonly string languagepath = Path.Combine(AppContext.BaseDirectory, "language");
-        
+        // Console control handler to capture console close events
+        private delegate bool ConsoleCtrlDelegate(int ctrlType);
+
+        [DllImport("Kernel32")]
+        private static extern bool SetConsoleCtrlHandler(ConsoleCtrlDelegate handler, bool add);
+
+        private static ConsoleCtrlDelegate? _consoleCtrlHandler;
 
         // Logging helpers
-        private static StringWriter? _logBuffer;
+        internal static StringWriter? _logBuffer;
         private static TextWriter? _originalOut;
         private static TextWriter? _originalErr;
 
-        //public static Config config = LoadConfig() ?? new Config();
-
         static void Main()
         {
-            AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit; // Sicherstellen, dass auch bei einem erzwungenen Shutdown (z.B. durch Task-Manager) ein Log geschrieben wird
-            Console.CancelKeyPress += Console_CancelKeyPress; // Sicherstellen, dass bei STRG+C ein Log geschrieben wird
-
+            _consoleCtrlHandler = new ConsoleCtrlDelegate(ConsoleCtrlCheck);
+            SetConsoleCtrlHandler(_consoleCtrlHandler, true);
 
             config = LoadConfig() ?? new Config();
+            states = LoadStates() ?? new States();
             IsDebug = config.Debug;
             // Ensure console uses UTF-8 so Umlauts (Ä Ö Ü etc.) are displayed correctly
             // Also switch the Windows console code page to UTF-8 (65001) to avoid � characters
@@ -80,39 +87,22 @@ namespace Modmanager_neu
                 Console.WriteLine("Keine Konfigurationsdatei gefunden — erstelle neu / Found no Config file - creating new");
                 config = new Config();
             }
-
-            Directory.CreateDirectory(Modtool.defaultmodspath);
             Localization.Init(config.Language ?? Masterlanguage);
             SaveConfig(config);
             // ----------- ende config -----------
             // ----------- start main -----------
             if (IsDebug)
                 IO.WaitForKeypress();
+            // hier läuft das Hauptmenü und alles andere
             Menu.Start();
+            // Hauptmenü wird geschlossen. Loggen und Beenden:
             if (IsDebug)
                 WriteLogAndExit(2, "0"); // exit code 2 = Debug mode
             else
                 WriteLogAndExit(0, "0"); // exit code 0 = log and exit immediately
             // ----------- ende main -----------
         }
-        private static void CurrentDomain_ProcessExit(object? sender, EventArgs e)
-        {
-            // Minimales Logging bei erzwungenem Shutdown
-            try
-            {
-                var content = _logBuffer?.ToString() ?? string.Empty;
-                content = $"Timestamp: {DateTime.Now:O}\nExitCode: Forced\n\n" + content;
-                Directory.CreateDirectory(logspath);
-                string filename = $"run_{DateTime.Now:yyyyMMdd_HHmmss}.log";
-                File.WriteAllText(Path.Combine(logspath, filename), content, Encoding.UTF8);
-            }
-            catch { }
-        }
-        private static void Console_CancelKeyPress(object? sender, ConsoleCancelEventArgs e)
-        {
-            e.Cancel = true; // Verhindert sofortiges Beenden
-            WriteLogAndExit(0, "user.cancelled");
-        }
+
         public static void WriteLogAndExit(int exitCode, string ex = "")
         {
             // Ausgabe des Exit-Grunds
@@ -180,6 +170,7 @@ namespace Modmanager_neu
                 string filename = $"run_{DateTime.Now:yyyyMMdd_HHmmss}.log";
                 string path = Path.Combine(logspath, filename);
 
+                IO.ShowMessage("log.written", [path]);
                 // Write buffer content to file
                 var content = _logBuffer?.ToString() ?? string.Empty;
                 // Append a footer with exit code and timestamp
@@ -192,7 +183,6 @@ namespace Modmanager_neu
                 if (_originalErr != null)
                     Console.SetError(_originalErr);
 
-                IO.ShowMessage("log.written", [path]);
             }
             catch
             {
@@ -212,6 +202,18 @@ namespace Modmanager_neu
                 Environment.Exit(exitCode);
             }
         }
+        private static bool ConsoleCtrlCheck(int ctrlType)
+        {
+            // 2 = CTRL_CLOSE_EVENT
+            // 0 = CTRL_C_EVENT
+            // 5 = CTRL_LOGOFF_EVENT
+            // 6 = CTRL_SHUTDOWN_EVENT
+            _logBuffer?.WriteLine("[Debug] Closed X");
+            WriteLogAndExit(0, "Console closed");
+
+            // true = wir haben es behandelt
+            return true;
+        }
         // ------ Config laden/speichern ------
         public static Config? LoadConfig()
         {
@@ -219,10 +221,10 @@ namespace Modmanager_neu
 
             var possible = GetConfigSearchPaths().Cast<string>().ToArray();
             Console.WriteLine("[Debug] Suche nach config.json in folgenden Pfaden:");
-                foreach (var p in possible)
-                {
-                    Console.WriteLine("[Debug]   " + p);
-                }
+            foreach (var p in possible)
+            {
+                Console.WriteLine("[Debug]   " + p);
+            }
             string? found = possible.FirstOrDefault(File.Exists);
             Console.WriteLine("[Debug] Config gefunden in: " + found);
             if (found == null) return null;
@@ -241,6 +243,7 @@ namespace Modmanager_neu
                 return null;
             }
         }
+        
         // Ermittelt den Pfad zur config.json: existierende Datei falls vorhanden, sonst Standard im BaseDirectory
         public static string GetConfigFilePath()
         {
@@ -254,10 +257,10 @@ namespace Modmanager_neu
         private static string[] GetConfigSearchPaths()
         {
             return [
-                Path.Combine(AppContext.BaseDirectory, "logs", "config.json"),
                 Path.Combine(AppContext.BaseDirectory, "config.json"),
                 Path.Combine(Directory.GetCurrentDirectory(), "config.json"),
-                Path.Combine(AppContext.BaseDirectory, "language", "config.json"),
+                Path.Combine(logspath, "config.json"),
+                Path.Combine(languagepath, "config.json"),
                 Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "config.json"),
             ];
         }
@@ -269,6 +272,82 @@ namespace Modmanager_neu
             var json = JsonSerializer.Serialize(cfg, options);
             File.WriteAllText(GetConfigFilePath(), json, Encoding.UTF8);
         }
+        
+        internal class Config
+        {
+            public string? Language { get; set; } = "de"; // default deutsch
+            public string? SteamID { get; set; } = "User_xxxxxxxxxxxxxx";
+            public string? GamePath { get; set; } = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Scrap Mechanic";
+            public bool Debug { get; set; } = false;
+            public bool AutoCheckForUpdates { get; set; } = true;
+            public bool UseDefaultMods { get; set; } = false;
+        }
+        // ------ States laden/speichern ------
+        public static States? LoadStates()
+        {
+            Console.WriteLine("[Debug] Lade Konfiguration...");
+
+            var possible = GetStatesSearchPaths().Cast<string>().ToArray();
+            Console.WriteLine("[Debug] Suche nach states.json in folgenden Pfaden:");
+            foreach (var p in possible)
+            {
+                Console.WriteLine("[Debug]   " + p);
+            }
+            string? found = possible.FirstOrDefault(File.Exists);
+            Console.WriteLine("[Debug] States gefunden in: " + found);
+            if (found == null) return null;
+
+            try
+            {
+                var json = File.ReadAllText(found);
+                JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };
+                var options = jsonSerializerOptions;
+                var sta = JsonSerializer.Deserialize<States>(json, options);
+
+                return sta;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        // Ermittelt den Pfad zur states.json: existierende Datei falls vorhanden, sonst Standard im BaseDirectory
+        public static string GetStatesFilePath()
+        {
+            var possible = GetStatesSearchPaths().Cast<string>().ToArray();
+            var found = possible.FirstOrDefault(File.Exists);
+            if (!string.IsNullOrEmpty(found)) return found!;
+
+            // Standardpfad neben der EXE
+            return Path.Combine(AppContext.BaseDirectory, "states.json");
+        }
+        private static string[] GetStatesSearchPaths()
+        {
+            return [
+                Path.Combine(AppContext.BaseDirectory, "states.json"),
+                Path.Combine(Directory.GetCurrentDirectory(), "states.json"),
+                Path.Combine(logspath, "states.json"),
+                Path.Combine(languagepath, "states.json"),
+                Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "states.json"),
+            ];
+        }
+        // Speichert die Konfiguration als prettified JSON an dem angegebenen Pfad
+        public static void SaveStates(States sta)
+        {
+            JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = true };
+            var options = jsonSerializerOptions;
+            var json = JsonSerializer.Serialize(sta, options);
+            File.WriteAllText(GetStatesFilePath(), json, Encoding.UTF8);
+        }
+        // kleine poco klasse zum erstellen einer neuen States datei. Hier muss alles angegeben sein, was auch in der States erscheinen soll
+        // in der states werden interne Variablen zwischen programmstarts gespeichert
+        internal class States
+        {
+            public string? Activemod { get; set; } = "Vanilla";
+            public bool Installeddefaultmods { get; set; } = false;
+        }
+
         // Steam related functions
         internal class Steam
         {
@@ -348,16 +427,15 @@ namespace Modmanager_neu
             {
                 Sonstiges.DebugText($"Initialisiere Lokalisierung für Sprache: '{lang}'");
                 _lang = string.IsNullOrWhiteSpace(lang) ? Masterlanguage : lang;
-                
+
                 // Master-Datei immer laden
                 LoadMasterLangFile();
-                
+
                 // Gewählte Sprache laden
                 LoadLangFile(_lang);
-                
+
                 Sonstiges.DebugText($"Lokalisierung initialisiert. Geladene Einträge: {_map?.Count ?? 0}");
             }
-
             private static void LoadMasterLangFile()
             {
                 try
@@ -384,7 +462,6 @@ namespace Modmanager_neu
                     _masterMap = [];
                 }
             }
-
             public static void LoadLangFile(string lang)
             {
                 try
@@ -420,7 +497,6 @@ namespace Modmanager_neu
                     _map = [];
                 }
             }
-
             public static string TryDecode(byte[] bytes)
             {
                 try
@@ -446,7 +522,6 @@ namespace Modmanager_neu
 
                 return Encoding.UTF8.GetString(bytes);
             }
-
             public static bool ContainsReplacementChar(string s)
             {
                 return s.Contains('\uFFFD');
@@ -555,7 +630,7 @@ namespace Modmanager_neu
                 Console.Write("> ");
 
                 string? userInput = IO.Handleinput();
-                
+
                 if (string.IsNullOrWhiteSpace(userInput))
                 {
                     Console.WriteLine("⚠️  Keine Eingabe. Verwende Beispieltext.");
@@ -616,7 +691,7 @@ namespace Modmanager_neu
                     _map ??= [];
 
                     Directory.CreateDirectory(languagepath);
-                    
+
                     var file = Path.Combine(languagepath, _lang + ".json");
 
                     // Speichere die aktuelle Map
@@ -658,19 +733,6 @@ namespace Modmanager_neu
                     Sonstiges.DebugText($"Fehler beim Speichern der Übersetzung: {ex.Message}");
                 }
             }
-        }
-        // kleine poco klasse zum erstellen einer neuen Config. Hier muss alles angegeben sein, was auch in der Config erscheinen soll
-        /// <summary>
-        /// Kleine POCO-Klasse zur Repräsentation der Konfiguration. Alle Eigenschaften sollten mit einem Standardwert versehen sein, damit bei der Erstellung einer neuen Config alle notwendigen Felder vorhanden sind. Die Klasse ist intern, da sie nur innerhalb des Programms verwendet wird und nicht von außen zugänglich sein muss.
-        /// </summary>
-        internal class Config
-        {
-            public string? Language { get; set; } = "de"; // default deutsch
-            public string? SteamID { get; set; } = "User_xxxxxxxxxxxxxx";
-            public string? GamePath { get; set; } = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Scrap Mechanic";
-            public bool Debug { get; set; } = false;
-            public bool AutoCheckForUpdates { get; set; } = true;
-            public bool UseDefaultMods { get; set; } = true;
         }
     }
 }

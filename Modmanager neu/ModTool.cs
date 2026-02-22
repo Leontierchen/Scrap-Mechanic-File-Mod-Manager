@@ -16,47 +16,10 @@ namespace Modmanager_neu
         public static readonly string vanillapath = Path.Combine(gamepath, modtool, "vanilla");
         public static readonly string contentsfile = "contents.txt";
         public static readonly string modlistsfile = "modlist.txt";
-        public static readonly string defaultmodspath = Path.Combine(AppContext.BaseDirectory, "default_mods");
         public static readonly string sourcesigfile = "sourcesig.txt";
-        public static string GetCurrentMod()
-        {
-            Sonstiges.DebugText("Starte Ermittlung des aktuellen Mods...");
-            string currentmod; // Kompiliert sauber
 
-            if (!Path.Exists(Path.Combine(gamepath, modtool)))
-            {
-                Directory.CreateDirectory(modspath);
-                Directory.CreateDirectory(vanillapath);
-            }
-
-            string file = Path.Combine(gamepath, modtool, modversionfile);
-            bool exists = File.Exists(file);
-            if (exists == false)
-            {
-                Console.WriteLine(file);
-                File.WriteAllText(file, "Installed Version\nVanilla");
-                currentmod = "Vanilla";
-            }
-            else
-            {
-                string[] line = File.ReadAllLines(file);
-                currentmod = line[1];
-            }
-            Sonstiges.DebugText("Ende Modermittlung. --> " + currentmod);
-            return currentmod;
-        }
-        public static void SetCurrentMod(string option)
-        {
-            Sonstiges.DebugText("Setze aktuellen Mod auf: " + option);
-            try
-            {
-                File.WriteAllText(Path.Combine(gamepath, modtool, modversionfile), $"Installed Version\n{option}");
-            }
-            catch (Exception ex)
-            {
-                WriteLogAndExit(10, ex.Message); //write file error
-            }
-        }
+        public static readonly string defaultmodspath = Path.Combine(gamepath, modtool, "default_mods");
+        
         public static string GetGamePath()
         {
             Sonstiges.DebugText("Starte Ermittlung des Spielpfads...");
@@ -188,12 +151,12 @@ namespace Modmanager_neu
                         IO.WaitForKeypress();
                         return;
                     }
-                    
+
                     foreach (var inputpath in picked)
                     {
                         if (Directory.Exists(inputpath) || File.Exists(inputpath))
                         {
-                            IO.ShowMessage("mods.menu.new.mod.path.accepted",[inputpath]);
+                            IO.ShowMessage("mods.menu.new.mod.path.accepted", [inputpath]);
                             modslist.Add(inputpath);
                         }
                         else
@@ -282,11 +245,11 @@ namespace Modmanager_neu
         internal static void SwitchMod() // menu option
         {
             Sonstiges.DebugText("Starte Wechsel des aktiven Mods...");
-            string activemod = GetCurrentMod(); //gibt der aktuell aktiven mod zurück, oder "Vanilla" wenn kein mod aktiv ist
+            string? activemod = states.Activemod; //gibt der aktuell aktiven mod zurück, oder "Vanilla" wenn kein mod aktiv ist
             string option = IO.Picker("mods.menu.change.active.mod.prompt", modspath, activemod, true); //gibt der ausgewählten mod zurück
             Sonstiges.DebugText($"Activemod: {activemod} ... Option: {option}");
-            if (string.IsNullOrEmpty(option)||option == "exit")
-                return; 
+            if (string.IsNullOrEmpty(option) || option == "exit")
+                return;
             else if (option == "no entries")
             {
                 IO.ShowMessage("mods.menu.no.mods");
@@ -295,6 +258,8 @@ namespace Modmanager_neu
             }
             else
             {
+                if (config.UseDefaultMods)
+                    UnloadDefaultMods();
                 if (config.AutoCheckForUpdates)
                 {
                     Sonstiges.DebugText("Auto-Update Check aktiviert. Prüfe auf Änderungen in den Modquellen...");
@@ -310,10 +275,11 @@ namespace Modmanager_neu
 
                 if (option == "Vanilla" && activemod != "Vanilla") //vanilla restore
                 {
-                    ModToVanilla(activemod);
+                    ModToVanilla(activemod!);
                     try
                     {
-                        SetCurrentMod("Vanilla");
+                        states.Activemod="Vanilla";
+                        SaveStates(states);
                     }
                     catch (Exception ex)
                     {
@@ -328,19 +294,22 @@ namespace Modmanager_neu
                     }
                     else
                     {
-                        ModToVanilla(activemod);
+                        ModToVanilla(activemod!);
                         VanillaToMod(option);
                     }
-                    SetCurrentMod(option);
+                    states.Activemod = option;
+                    SaveStates(states);
                 }
+                if (config.UseDefaultMods)
+                    UnloadDefaultMods();
             }
             IO.WaitForKeypress();
             return;
         }
         internal static void UpdateMod(string? autoupdatename = null) // menu option
         {
-            string activemod = GetCurrentMod();
-            string? option; 
+            string? activemod = states.Activemod;
+            string? option;
             if (autoupdatename == null)
                 option = IO.Picker("mods.menu.update.prompt", modspath, activemod, false, false, true);
             else
@@ -368,7 +337,7 @@ namespace Modmanager_neu
                 }
                 else
                 {
-                    
+
                     IO.ShowMessage("mods.menu.update.progress.start", [option]);
 
                     List<string> updatepaths = [];
@@ -473,7 +442,7 @@ namespace Modmanager_neu
         }
         internal static void RenameMod() // menu option
         {
-            string activemod = GetCurrentMod();
+            string? activemod = states.Activemod;
             string option = IO.Picker("mods.menu.rename.mod.prompt", modspath, activemod, false, false, true);
             string? newname = string.Empty;
             if (string.IsNullOrEmpty(option) || option == "exit") //Abfrage, ob gültige Option ausgewählt wurde, oder ob Nutzer zurückgehen wollte
@@ -534,23 +503,24 @@ namespace Modmanager_neu
                         IO.ShowMessage("mods.menu.rename.mod.done", [option, newname]);
                     }
                     else
-                        WriteLogAndExit(11, "Neuer Modname ist null trotz prüfung."); 
+                        WriteLogAndExit(11, "Neuer Modname ist null trotz prüfung.");
                 }
                 catch (Exception ex)
                 { WriteLogAndExit(11, ex.Message); } //Fehler beim umbenennen des Modordners
                 if (activemod != "Vanilla")
                 {
-                    SetCurrentMod(newname!);
+                    states.Activemod = newname!;
+                    SaveStates(states);
                 }
             }
         }
         internal static void RemoveMod() // menu option
         {
             Sonstiges.DebugText("Starte Entfernen eines Mods...");
-            string activemod = GetCurrentMod();
-            string option = IO.Picker("mods.menu.remove.mod.prompt",modspath,activemod,false,true,true);
+            string? activemod = states.Activemod;
+            string option = IO.Picker("mods.menu.remove.mod.prompt", modspath, activemod, false, true, true);
             Sonstiges.DebugText($"Activemod: {activemod} ... Option: {option}");
-            if (string.IsNullOrEmpty(option)||option=="exit")
+            if (string.IsNullOrEmpty(option) || option == "exit")
                 return;
             else if (option == "no entries") // Abfrage, ob überhaupt Mods zum umbenennen vorhanden sind
             {
@@ -561,13 +531,14 @@ namespace Modmanager_neu
             else
             {
                 if (option == "all")
-                { 
+                {
                     if (IO.YesOrNoPrompt(Localization.T("mods.menu.remove.mod.all.warn")))
                     {
                         if (activemod != "Vanilla")
                         {
-                            ModToVanilla(activemod);
-                            SetCurrentMod("Vanilla");
+                            ModToVanilla(activemod!); 
+                            states.Activemod = "Vanilla";
+                            SaveStates(states);
                         }
                         string[] mods = Directory.GetDirectories(modspath);
                         foreach (string mod in mods)
@@ -594,7 +565,8 @@ namespace Modmanager_neu
                         if (IO.YesOrNoPrompt(Localization.T("mods.menu.remove.mod.active.warn")))
                         {
                             ModToVanilla(activemod);
-                            SetCurrentMod("Vanilla");
+                            states.Activemod = "Vanilla";
+                            SaveStates(states);
                         }
                         else
                         {
@@ -618,7 +590,7 @@ namespace Modmanager_neu
             string modpath = Path.Combine(modspath, modname);
             //vanillabackup
             Sonstiges.DebugText($"Lese Datei: {Path.Combine(modpath, contentsfile)}");
-            string [] modfiles = File.ReadAllLines(Path.Combine(modpath, contentsfile)); //relative paths
+            string[] modfiles = File.ReadAllLines(Path.Combine(modpath, contentsfile)); //relative paths
             IO.ShowMessage("mods.menu.vanillatomod.start");
             List<string> vanillafiles = [];
             Sonstiges.DebugText("Erstelle Database für Vanillafiles, die gesichert werden müssen");
@@ -642,10 +614,22 @@ namespace Modmanager_neu
             {
                 WriteLogAndExit(10, ex.Message); //write file error
             }
-            Sonstiges.Filehelper.Move(gamepath, Path.Combine(vanillapath, "files"), false, [.. vanillafiles], true, true);
+            Sonstiges.Filehelper.Move(
+                source: gamepath,
+                target: Path.Combine(vanillapath, "files"),
+                files: [.. vanillafiles],
+                combine: true,
+                useProgressbar: true
+                );
             IO.ShowMessage("mods.menu.vanillatomod.vanillasaved");
             //mod install
-            Sonstiges.Filehelper.Move(Path.Combine(modpath, "files"), gamepath, true, modfiles, true, true);
+            Sonstiges.Filehelper.Move(
+                source: Path.Combine(modpath, "files"),
+                target: gamepath,
+                files: modfiles,
+                combine: true,
+                useProgressbar: true
+                );
             IO.ShowMessage("mods.menu.vanillatomod.done");
         }
         static void ModToVanilla(string currentmod)
@@ -718,7 +702,7 @@ namespace Modmanager_neu
                     continue;
                 var src = parts[0];
                 var saved = parts[1];
-                string current = "MISSING";
+                string current;
                 try
                 {
                     if (File.Exists(src))
@@ -793,7 +777,7 @@ namespace Modmanager_neu
                 catch (Exception ex)
                 {
                     Sonstiges.DebugText("Picker exception: " + ex.Message);
-                    result = Array.Empty<string>();
+                    result = [];
                 }
             });
             t.SetApartmentState(ApartmentState.STA);
@@ -806,9 +790,144 @@ namespace Modmanager_neu
         public static void OpenDefaultModsFolder()
         {
             Sonstiges.DebugText("Öffne Standard Mods Ordner...");
-            if (!Directory.Exists(Modtool.defaultmodspath))
-                Directory.CreateDirectory(Modtool.defaultmodspath);
-            Process.Start("explorer.exe", Modtool.defaultmodspath);
+            if (!Directory.Exists(defaultmodspath))
+            {
+                Directory.CreateDirectory(Path.Combine(defaultmodspath, "mods"));
+                Directory.CreateDirectory(Path.Combine(defaultmodspath, "recovery"));
+            }
+            Process.Start("explorer.exe", defaultmodspath);
+        }
+        public static void LoadDefaultMods()
+        {
+            if (states.Installeddefaultmods)
+            {
+                Sonstiges.DebugText("Standard Mods wurden bereits installiert, überspringe Installation");
+                return;
+            }
+            else
+            {
+                string modspath = Path.Combine(defaultmodspath, "mods");
+                string recoverypath = Path.Combine(defaultmodspath, "recovery");
+                Sonstiges.DebugText("\n------ Lade Mods aus Standard Mods Ordner --------\n");
+                if (!Directory.Exists(defaultmodspath))
+                {
+                    IO.ShowMessage("default.mods.cant.install");
+                    Sonstiges.DebugText("Standard Mods Ordner existiert nicht, erstelle ihn und lade keine Mods");
+                    Directory.CreateDirectory(modspath);
+                    Directory.CreateDirectory(recoverypath);
+                    return;
+                }
+                try
+                {
+                    //lese alle dateien in default_mods
+                    string[] files = Directory.GetFiles(modspath, ".", SearchOption.AllDirectories);
+                    if (files.Length == 0)
+                    {
+
+                        IO.ShowMessage("default.mods.cant.install");
+                        Sonstiges.DebugText("Standard Mods Ordner enthält keine mods, lade keine Mods");
+                        config.UseDefaultMods = false;
+                        SaveConfig(config);
+                        return;
+                    }
+                    for (int i = 0; i < files.Length; i++)
+                    {
+                        if (Path.GetFileName(files[i]) == "Readme.txt")
+                        {
+                            files[i] = string.Empty;
+                            continue;
+                        }
+                        files[i] = Path.GetRelativePath(modspath, files[i]);
+                    }
+
+                    //schreibe diese dateien als relativpfad in die contents.txt im mods ordner
+                    File.WriteAllLines(Path.Combine(defaultmodspath, "mod_contents.txt"), files);
+                    //prüfe existenz dieser dateien im spielverzeichnis, wenn sie existieren, sichere sie im recovery ordner
+                    List<string> vanillafiles = [];
+                    foreach (string file in files)
+                    {
+                        if (!string.IsNullOrEmpty(file))
+                        {
+                            if (File.Exists(Path.Combine(gamepath, file)))
+                                vanillafiles.Add(file);
+                        }
+                    }
+                    //schreibe diese dateien als relativpfad in die contents.txt im recovery ordner
+                    File.WriteAllLines(Path.Combine(defaultmodspath, "recovery_contents.txt"), [.. vanillafiles]);
+                    //kopiere die dateien von spielpfad zu recovery
+                    IO.ShowMessage("default.mods.installing");
+                    Sonstiges.Filehelper.Move(
+                        source: gamepath,
+                        target: recoverypath,
+                        files: [.. vanillafiles],
+                        combine: true,
+                        useProgressbar: true
+                        );
+                    //kopiere die dateien von mods zu spielpfad
+                    Sonstiges.Filehelper.Copy(
+                        source: modspath,
+                        target: gamepath,
+                        files: files,
+                        combine: true,
+                        useProgressbar: true
+                        );
+                    states.Installeddefaultmods = true;
+                    SaveStates(states);
+                    IO.ShowMessage("default.mods.installed");
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    Sonstiges.DebugText("Fehler beim Laden der Standard Mods: " + ex.Message);
+                }
+            }
+        }
+        public static void UnloadDefaultMods()
+        {
+            if (!states.Installeddefaultmods)
+            {
+                Sonstiges.DebugText("Standard Mods wurden nicht installiert, überspringe Wiederherstellung");
+                return;
+            }
+            else
+            {
+                string recoverypath = Path.Combine(defaultmodspath, "recovery");
+                Sonstiges.DebugText("\n------ Stelle Vanilla Zustand aus Standard Mods Ordner wieder her --------\n");
+                if (!Directory.Exists(recoverypath))
+                {
+                    Sonstiges.DebugText("Recovery Ordner existiert nicht, kann Vanilla Zustand nicht wiederherstellen");
+                    return;
+                }
+                try
+                {
+                    //lese alle dateien in recovery_contents.txt
+                    string[] modfiles = File.ReadAllLines(Path.Combine(defaultmodspath, "mod_contents.txt")); //relative paths
+                    foreach (string modfile in modfiles) //prüfe, ob diese dateien im spielverzeichnis existieren, wenn ja, lösche sie
+                    {
+                        File.Delete(modfile);
+                    }
+                    //lese alle dateien in recovery
+                    string[] files = File.ReadAllLines(Path.Combine(defaultmodspath, "recovery_contents.txt"));
+                    //kopiere die dateien von recovery zu spielpfad
+                    IO.ShowMessage("default.mods.restoring");
+                    Sonstiges.Filehelper.Move(
+                        source: recoverypath,
+                        target: gamepath,
+                        files: files,
+                        combine: true,
+                        useProgressbar: true
+                        );
+
+                    states.Installeddefaultmods = false;
+                    SaveStates(states);
+                    IO.ShowMessage("default.mods.restored");
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    Sonstiges.DebugText("Fehler beim Wiederherstellen des Vanilla Zustands: " + ex.Message);
+                }
+            }
         }
     }
 }

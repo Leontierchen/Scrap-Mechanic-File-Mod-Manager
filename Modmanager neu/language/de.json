@@ -9,7 +9,7 @@
   "gamepath.notfound": "⚠ Der Spielpfad wurde nicht gefunden. Bitte überprüfe, ob das Spiel Scrap Mechanic installiert ist.",
   "gamepath.promt": "Bitte geben Sie den Installationspfad des Spiels Scrap Mechanic an: ",
   "main.menu.title": "Hauptmenü",
-  "main.menu.subtext": "Aktuell installierte Mod: {0}",
+  "main.menu.subtext": "Aktuell installierte Mod: {0}\nDefault Mods aktiv: {1}",
   "main.menu.options": [
     "Backup Manager",
     "Charakter Outfit Manager",
@@ -57,13 +57,14 @@
   "outfit.manager.deleted": "✅ Outfit {0} gelöscht.",
 
   "mods.menu.title": "Mods verwalten",
-  "mods.menu.subtext": "Aktuell installierte Mod: {0}",
+  "mods.menu.subtext": "Aktuell installierte Mod: {0}\nDefault Mods aktiv: {1}",
   "mods.menu.options": [
     "Aktive Mod wechseln",
     "Neue Mod hinzufügen",
     "Mod aktualisieren",
     "Mod umbenennen",
-    "Mod löschen"
+    "Mod löschen",
+    "Default Mods Einstellungen"
   ],
   "mods.menu.change.active.mod.prompt": "Welche Mod soll aktiviert werden? (Mit Enter bestätigen)",
   "mods.menu.no.mods": "⚠ Keine Mods gefunden. Bitte füge zuerst eine Mod hinzu ⚠",
@@ -130,11 +131,16 @@
   "mods.menu.autoupdate.prompt": "Möchtest du das automatische Update durchführen?",
 
   "default.mods.menu.title": "Default Mods Einstellungen",
-  "default.mods.menu.subtext": "Hier kannst du einstellen, ob Mods, die im \"default_mods\" Ordner abgelegt wurden, auch aktiviert werden sollen.\nAktuell: {0}",
+  "default.mods.menu.subtext": "In \"Default Mods\" kannst du Mods hinterlegen, die Dauerhaft aktiv sind, auch wenn keine Mods aktiv sind.\nDiese Mods werden immer als letztes geladen. Empfohlen sind nur kleine Mods, nichts, was den Multiplayer beeinträchtigt\n!!! Nutzung auf eigene Gefahr !!!\nAktiv: {0}",
   "default.mods.options": [
     "Zustand Umschalten",
     "Öffne den \"default_mods\" ordner"
   ],
+  "default.mods.cant.install": "⚠ Es können keine Mods installiert werden, da der \"default_mods\" Ordner leer ist. Bitte füge Mods manuell hinzu, bevor du sie installierst. Öffne dazu den Default Mods ordner.",
+  "default.mods.installing": "Die Mods im \"default_mods\" Ordner werden installiert...",
+  "default.mods.installed": "✅ Die Mods im \"default_mods\" Ordner wurden installiert.",
+  "default.mods.restoring": "Die Mods im \"default_mods\" Ordner werden deaktiviert...",
+  "default.mods.restored": "✅ Die Mods im \"default_mods\" Ordner wurden deaktiviert.",
 
   "menu.go.back.esc": "\nESC) Vorheriges Menü",
   "menu.go.back.q": "\nQ) Vorheriges Menü (abbrechen)",

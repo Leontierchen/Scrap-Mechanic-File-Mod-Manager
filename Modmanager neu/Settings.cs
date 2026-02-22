@@ -115,12 +115,21 @@ namespace Modmanager_neu
             SaveConfig(config);
         }
         public static void ToggleDefaultMods()
-        {              
+        {
             if (config.UseDefaultMods)
+            {
                 config.UseDefaultMods = false;
+                if (states.Installeddefaultmods)
+                    Modtool.UnloadDefaultMods();
+            }
             else
+            {
                 config.UseDefaultMods = true;
+                if (!states.Installeddefaultmods)
+                    Modtool.LoadDefaultMods();
+            }
             SaveConfig(config);
+            IO.WaitForKeypress();
         }
     }
 }

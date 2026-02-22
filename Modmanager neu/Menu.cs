@@ -94,7 +94,8 @@ internal static class Menu
                     () => Modtool.AddMod(), // Lambda-Ausdruck verwendet
                     () => Modtool.UpdateMod(),
                     Modtool.RenameMod,
-                    Modtool.RemoveMod
+                    Modtool.RemoveMod,
+                   OpenDefaultModsMenu
                 ]
             )
         );
@@ -139,7 +140,7 @@ internal static class Menu
                actions:
                [
                    Settings.ToggleDefaultMods,
-                   Modtool.OpenDefaultModsFolder
+                   Modtool.OpenDefaultModsFolder,
                ]
            )
        );
@@ -167,17 +168,17 @@ internal static class Menu
             {
                 if (!string.IsNullOrEmpty(sub))
                 {
-                    object? subTextArg2;
+                    string[] subTextArg2;
                     if (sub == "lastbackup")
-                        subTextArg2 = BackupManager.GetLastBackupName();
+                        subTextArg2 = [BackupManager.GetLastBackupName()];
                     else if (sub == "currentmod")
-                        subTextArg2 = Modtool.GetCurrentMod();
+                        subTextArg2 = [states.Activemod!,Convert.ToString(states.Installeddefaultmods)];
                     else if (sub == "currentoutfit")
-                        subTextArg2 = OutfitManager.GetCurrentOutfit();
+                        subTextArg2 = [OutfitManager.GetCurrentOutfit()];
                     else if (sub == "defaultmods")
-                        subTextArg2 = Convert.ToString(config.UseDefaultMods);
+                        subTextArg2 = [Convert.ToString(config.UseDefaultMods)];
                     else
-                        subTextArg2 = subTextArg;
+                        subTextArg2 = [sub];
 
                     Console.WriteLine(string.Format(Localization.T(subTextKey), subTextArg2));
                 }
