@@ -133,7 +133,7 @@
   "default.mods.menu.title": "Default Mods Einstellungen",
   "default.mods.menu.subtext": "In \"Default Mods\" kannst du Mods hinterlegen, die Dauerhaft aktiv sind, auch wenn keine Mods aktiv sind.\nDiese Mods werden immer als letztes geladen. Empfohlen sind nur kleine Mods, nichts, was den Multiplayer beeinträchtigt\n!!! Nutzung auf eigene Gefahr !!!\nAktiv: {0}",
   "default.mods.options": [
-    "Zustand Umschalten",
+    "Aktivieren/Deaktivieren",
     "Öffne den \"default_mods\" ordner"
   ],
   "default.mods.cant.install": "⚠ Es können keine Mods installiert werden, da der \"default_mods\" Ordner leer ist. Bitte füge Mods manuell hinzu, bevor du sie installierst. Öffne dazu den Default Mods ordner.",
