@@ -14,9 +14,9 @@ namespace Modmanager_neu
         public static readonly string modversionfile = "version.txt";
         public static readonly string modspath = Path.Combine(gamepath, modtool, "mods");
         public static readonly string vanillapath = Path.Combine(gamepath, modtool, "vanilla");
-        public static readonly string contentsfile = "contents.txt";
-        public static readonly string modlistsfile = "modlist.txt";
-        public static readonly string sourcesigfile = "sourcesig.txt";
+        public static readonly string contentsfile = "contents.txt"; //enthält die Liste der Dateien/Ordner, die tatsächlich in den Mod einbezogen wurden, um bei Updates nur diese zu überprüfen und zu ersetzen, anstatt alle Dateien im Modordner, was auch Dateien umfassen könnte, die nicht mehr in den Quellen enthalten sind.
+        public static readonly string modlistsfile = "modlist.txt"; //enthält die Originalpfade der Dateien/Ordner, die in den Mod einbezogen wurden, um Updates zu ermöglichen
+        public static readonly string sourcesigfile = "sourcesig.txt"; //enthält die Signaturen der Originalquellen, um Änderungen zu erkennen
 
         public static readonly string defaultmodspath = Path.Combine(gamepath, modtool, "default_mods");
         
@@ -892,7 +892,7 @@ namespace Modmanager_neu
             else
             {
                 string recoverypath = Path.Combine(defaultmodspath, "recovery");
-                Sonstiges.DebugText("\n------ Stelle Vanilla Zustand aus Standard Mods Ordner wieder her --------\n");
+                Sonstiges.DebugText("\n------ Stelle Vanilla Zustand aus Standard Mods Ordner wieder her --------\n"+recoverypath);
                 if (!Directory.Exists(recoverypath))
                 {
                     Sonstiges.DebugText("Recovery Ordner existiert nicht, kann Vanilla Zustand nicht wiederherstellen");
@@ -904,7 +904,8 @@ namespace Modmanager_neu
                     string[] modfiles = File.ReadAllLines(Path.Combine(defaultmodspath, "mod_contents.txt")); //relative paths
                     foreach (string modfile in modfiles) //prüfe, ob diese dateien im spielverzeichnis existieren, wenn ja, lösche sie
                     {
-                        File.Delete(modfile);
+                        string fullpath = Path.Combine(gamepath, modfile);
+                        File.Delete(fullpath);
                     }
                     //lese alle dateien in recovery
                     string[] files = File.ReadAllLines(Path.Combine(defaultmodspath, "recovery_contents.txt"));
