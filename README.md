@@ -1,7 +1,7 @@
 This is no longer just a file mod manager, because it does way more. 
 Download the [newes version here](https://github.com/Leontierchen/Scrap-Mechanic-File-Mod-Manager/releases) 
 
-[/b]Features:[/b]
+Features:
 - Save game backup manager
   - create backups of your worlds stored in the tools install directory
   - load backups between game starts
@@ -20,9 +20,9 @@ Download the [newes version here](https://github.com/Leontierchen/Scrap-Mechanic
   - default mods (mods that will be always active, parallel to normal file mods. use this for all mods that work in multiplayer)
   - quickly activate, deactivate and switch between vanilla and file mods without moving any file by hand.
     
-- Workshop Cache Cleaner (can resolve most common issues with mods since the scrap Mechanic 1.0 update
+- Workshop Cache Cleaner (can resolve most common issues with mods since the release of scrap Mechanic 1.0 update)
   - Clean the Cache of workshop mods only
-  - Full Wipe the downloaded files of all subscribed mods and creations
+  - Re-download all files of all subscribed mods and creations
    
 - Languages:
   - English
@@ -36,6 +36,3 @@ Compatibility
 
 How to Use:
 Unpack to any destination you want, run the "Modmanager neu.exe" and use the console menus
-
-What does it do on startup?
-It will place a folder called "Mod_manager_by_leon" where the mods 
