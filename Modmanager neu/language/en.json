@@ -94,6 +94,10 @@
   "mods.menu.new.mod.extract.directory": "Copying mod files...",
   "mods.menu.new.mod.extract.directory.done": "✅ Mod files copied successfully.",
 
+  "mods.menu.new.mod.place.in.subfolder.prompt": "Do you want to place the files from this source into a subfolder inside the mod target folder?",
+  "mods.menu.new.mod.subfolder.name.prompt": "Please enter a name for the subfolder (press Q to cancel):",
+  "mods.menu.new.mod.subfolder.name.invalid": "❌ Invalid subfolder name, please try again.",
+
   "mods.menu.new.mod.add.more.mods.question": "Do you want to add more mods?",
   "mods.menu.new.mod.finished": "✅ The mod \"{0}\" was successfully created. You can now activate it in the \"{1}\" menu.",
 
@@ -151,7 +155,13 @@
   "picker.option.same": "❌ Selection is already active, please choose another option",
 
   "settings.menu.title": "Settings",
-  "setting.menu.subtext": "Can also be changed in Config.json",
+  "settings.menu.subtext": "Can also be changed in Config.json",
+  "settings.menu.options": [
+    "🌐 Change Language: \"{0}\"",
+    "Auto Update Check: \"{0}\"",
+    "Default Mods: \"{0}\"",
+    "Debug: \"{0}\""
+  ],
   "settings.language.select": "--- Select Language ---",
   "settings.language.changed": "Language changed to: {0}",
   "settings.language.no.files": "⚠ No language files found ⚠",

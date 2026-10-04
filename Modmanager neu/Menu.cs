@@ -109,15 +109,9 @@ internal static class Menu
         PushMenu(() =>
            ShowMenu(
                titleKey: "settings.menu.title",
-               subTextKey: "setting.menu.subtext",
+               subTextKey: "settings.menu.subtext",
                subTextArg: "",
-               optionsKey: 
-               [
-                    "🌐 Change Language: \"{0}\"",
-                    "Auto Update Check: \"{0}\"",
-                    "Default Mods: \"{0}\"",
-                    "Debug: \"{0}\""
-                ],
+               optionsKey: ["settings.menu.options"],
                actions: 
                [
                    Settings.LanguageSelection,
@@ -207,16 +201,31 @@ internal static class Menu
                     if (options[i].Contains("{0}"))
                     {
                         string? arg = null;
-                        if (options[i].Contains("Debug")) // debug
-                            arg = Convert.ToString(config.Debug);
-                        else if (options[i].Contains("Language")) // Sprache
-                            arg = Convert.ToString(config.Language);
-                        else if (options[i].Contains("Update")) // Auto-Update
-                            arg = Convert.ToString(config.AutoCheckForUpdates);
-                        else if (options[i].Contains("Default Mods")) // Default-Mods
-                            arg = Convert.ToString(config.UseDefaultMods);
+                        // Wenn die Optionen aus einer Sprachdatei geladen wurden, sind sie bereits lokalisiert.
+                        // Bestimme das Argument anhand der indexierten Position (für settings.menu.options)
+                        if (optionsKey.Length == 1 && optionsKey[0] == "settings.menu.options")
+                        {
+                            switch (i)
+                            {
+                                case 0: arg = Convert.ToString(config.Language); break;
+                                case 1: arg = Convert.ToString(config.AutoCheckForUpdates); break;
+                                case 2: arg = Convert.ToString(config.UseDefaultMods); break;
+                                case 3: arg = Convert.ToString(config.Debug); break;
+                            }
+                        }
+                        else
+                        {
+                            if (options[i].Contains("Debug")) // fallback: englische Stichworte
+                                arg = Convert.ToString(config.Debug);
+                            else if (options[i].Contains("Language")) // Sprache
+                                arg = Convert.ToString(config.Language);
+                            else if (options[i].Contains("Update")) // Auto-Update
+                                arg = Convert.ToString(config.AutoCheckForUpdates);
+                            else if (options[i].Contains("Default Mods")) // Default-Mods
+                                arg = Convert.ToString(config.UseDefaultMods);
+                        }
                         if (!string.IsNullOrEmpty(arg))
-                            text = $"{a + 1}) {string.Format(Localization.T(options[i]), arg)}";
+                            text = $"{a + 1}) {string.Format(options[i], arg)}";
                     }
                     else
                         text = $"{a + 1}) {options[i]}";

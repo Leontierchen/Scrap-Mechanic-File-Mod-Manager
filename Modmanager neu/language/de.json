@@ -94,8 +94,11 @@
   "mods.menu.new.mod.extract.directory": "Die Mod Dateien werden kopiert...",
   "mods.menu.new.mod.extract.directory.done": "✅ Die Mod Dateien wurden erfolgreich kopiert.",
 
-  "mods.menu.new.mod.add.more.mods.question": "Willst du weitere Mods hinzufügen?",
+  "mods.menu.new.mod.place.in.subfolder.prompt": "Möchtest du die Dateien aus dieser Quelle in einem Unterordner innerhalb des Mod‑Zielordners ablegen?",
+  "mods.menu.new.mod.subfolder.name.prompt": "Bitte gib einen Namen für den Unterordner ein (Q zum Abbrechen):",
+  "mods.menu.new.mod.subfolder.name.invalid": "❌ Ungültiger Ordnername, bitte erneut versuchen.",
 
+  "mods.menu.new.mod.add.more.mods.question": "Willst du weitere Mods hinzufügen?",
   "mods.menu.new.mod.finished": "✅ Die Mod \"{0}\" wurde erfolgreich erstellt. Jetzt kannst du sie im menü \"{1}\" aktivieren.",
 
   "mods.menu.remove.mod.prompt": "Welche Mod möchtet du löschen? (mit Enter bestätigen)",
@@ -152,7 +155,13 @@
   "picker.option.same": "❌Auswahl ist bereits aktiv, bitte wähle eine andere Option",
 
   "settings.menu.title": "Einstellungen",
-  "setting.menu.subtext": "Kann auch in der Config.json geändert werden",
+  "settings.menu.subtext": "Kann auch in der Config.json geändert werden",
+  "settings.menu.options": [
+    "🌐 Sprache ändern: \"{0}\"",
+    "Automatische Update-Prüfung: \"{0}\"",
+    "Default Mods: \"{0}\"",
+    "Debug: \"{0}\""
+  ],
   "settings.language.select": "--- Sprache auswählen ---",
   "settings.language.changed": "Sprache geändert zu: {0}",
   "settings.language.no.files": "⚠ Keine Sprachdateien gefunden ⚠",

@@ -2,6 +2,8 @@
 using System.IO.Compression;
 using System.Runtime.Versioning;
 using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 using static Modmanager_neu.Program;
 
 namespace Modmanager_neu
@@ -14,7 +16,8 @@ namespace Modmanager_neu
         public static readonly string modversionfile = "version.txt";
         public static readonly string modspath = Path.Combine(gamepath, modtool, "mods");
         public static readonly string vanillapath = Path.Combine(gamepath, modtool, "vanilla");
-        public static readonly string contentsfile = "contents.txt"; //enthält die Liste der Dateien/Ordner, die tatsächlich in den Mod einbezogen wurden, um bei Updates nur diese zu überprüfen und zu ersetzen, anstatt alle Dateien im Modordner, was auch Dateien umfassen könnte, die nicht mehr in den Quellen enthalten sind.
+        // contents.json enthält die Liste der relativen Dateien/Ordner, die tatsächlich in den Mod einbezogen wurden.
+        public static readonly string contentsfile = "contents.json";
         public static readonly string modlistsfile = "modlist.txt"; //enthält die Originalpfade der Dateien/Ordner, die in den Mod einbezogen wurden, um Updates zu ermöglichen
         public static readonly string sourcesigfile = "sourcesig.txt"; //enthält die Signaturen der Originalquellen, um Änderungen zu erkennen
 
@@ -181,21 +184,69 @@ namespace Modmanager_neu
             { Directory.CreateDirectory(modfiles); }
             catch (Exception ex)
             { WriteLogAndExit(8, ex.Message); } // Fehler beim Erstellen des Modverzeichnisses, wahrscheinlich ungültige Zeichen im Modnamen, obwohl vorher geprüft.
+            // Optional: Erlaube dem Benutzer, für jede Quelle einen Ziel-Unterordner innerhalb des Mod-"files" Ordners zu wählen.
+            var pathSubfolders = new Dictionary<string, string?>();
+            if (!update)
+            {
+                foreach (var src in modslist)
+                {
+                    // Frage nur, wenn der Pfad existiert
+                    if (!File.Exists(src) && !Directory.Exists(src))
+                        { pathSubfolders[src] = null; continue; }
+
+                    if (IO.YesOrNoPrompt(Localization.T("mods.menu.new.mod.place.in.subfolder.prompt") + "\n--" + src + "\n"))
+                    {
+                        bool valid = false;
+                        string subname = string.Empty;
+                        while (!valid)
+                        {
+                            IO.ShowMessage("mods.menu.new.mod.subfolder.name.prompt");
+                            var input = IO.Handleinput(q: true);
+                            if (input == null) { IO.ShowMessage("mods.menu.new.mod.subfolder.name.invalid"); continue; }
+                            if (input.Equals("Q", StringComparison.OrdinalIgnoreCase)) { subname = string.Empty; break; }
+                            if (input.Length == 0 || input.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+                            {
+                                IO.ShowMessage("mods.menu.new.mod.subfolder.name.invalid");
+                                continue;
+                            }
+                            subname = input;
+                            valid = true;
+                        }
+                        pathSubfolders[src] = string.IsNullOrWhiteSpace(subname) ? null : subname;
+                    }
+                    else
+                    {
+                        pathSubfolders[src] = null;
+                    }
+                }
+            }
+            else
+            {
+                foreach (var src in modslist) pathSubfolders[src] = null;
+            }
+
             foreach (string item in modslist)
             {
+                string destRoot = modfiles;
+                if (pathSubfolders.TryGetValue(item, out var sub) && !string.IsNullOrWhiteSpace(sub))
+                {
+                    destRoot = Path.Combine(modfiles, sub);
+                    try { Directory.CreateDirectory(destRoot); }
+                    catch (Exception ex) { WriteLogAndExit(8, ex.Message); }
+                }
+
                 if (File.Exists(item))
                 {
                     IO.ShowMessage("mods.menu.new.mod.extract.zip");
-                    try
-                    { ZipFile.ExtractToDirectory(item, modfiles, true); }
-                    catch (Exception ex)
-                    { WriteLogAndExit(9, ex.Message); } //Fehler beim extrahieren der zip
+                    try { ZipFile.ExtractToDirectory(item, destRoot, true); }
+                    catch (Exception ex) { WriteLogAndExit(9, ex.Message); } //Fehler beim extrahieren der zip
                     IO.ShowMessage("mods.menu.new.mod.extract.zip.done");
                 }
                 else if (Directory.Exists(item))
                 {
                     IO.ShowMessage("mods.menu.new.mod.extract.directory");
-                    Sonstiges.Filehelper.Copy(item, modfiles, true, Directory.GetFiles(item, "*.*", SearchOption.AllDirectories), true);
+                    var srcFiles = Directory.GetFiles(item, "*.*", SearchOption.AllDirectories);
+                    Sonstiges.Filehelper.Copy(item, destRoot, true, srcFiles, true);
                     IO.ShowMessage("mods.menu.new.mod.extract.directory.done");
                 }
             }
@@ -229,13 +280,23 @@ namespace Modmanager_neu
                 Sonstiges.DebugText("Warning: Could not write source signatures: " + ex.Message);
             }
 
-            string[] files = Directory.GetFiles(modfiles, ".", SearchOption.AllDirectories);
+            string[] files = Directory.GetFiles(modfiles, "*.*", SearchOption.AllDirectories);
             for (int i = 0; i < files.Length; i++)
             {
                 files[i] = (Path.GetRelativePath(modfiles, files[i]));
             }
 
-            File.WriteAllLines(Path.Combine(modnamepath, contentsfile), files);
+            // Speichere contents als JSON (Array von relativen Pfaden)
+            try
+            {
+                var contentsJson = JsonSerializer.Serialize(files, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(Path.Combine(modnamepath, contentsfile), contentsJson, Encoding.UTF8);
+            }
+            catch (Exception ex)
+            {
+                WriteLogAndExit(10, ex.Message);
+            }
+
             if (update == false)
             {
                 IO.ShowMessage("mods.menu.new.mod.finished", [modname!, Localization.TArray("mods.menu.options")[0]]);
@@ -590,7 +651,16 @@ namespace Modmanager_neu
             string modpath = Path.Combine(modspath, modname);
             //vanillabackup
             Sonstiges.DebugText($"Lese Datei: {Path.Combine(modpath, contentsfile)}");
-            string[] modfiles = File.ReadAllLines(Path.Combine(modpath, contentsfile)); //relative paths
+            string[] modfiles = [];
+            try
+            {
+                var txt = File.ReadAllText(Path.Combine(modpath, contentsfile), Encoding.UTF8);
+                modfiles = JsonSerializer.Deserialize<string[]>(txt) ?? [];
+            }
+            catch (Exception ex)
+            {
+                WriteLogAndExit(10, ex.Message); //read file error
+            }
             IO.ShowMessage("mods.menu.vanillatomod.start");
             List<string> vanillafiles = [];
             Sonstiges.DebugText("Erstelle Database für Vanillafiles, die gesichert werden müssen");
@@ -608,7 +678,8 @@ namespace Modmanager_neu
             Sonstiges.DebugText($"Schreibe Datei: {Path.Combine(vanillapath, contentsfile)}");
             try
             {
-                File.WriteAllLines(Path.Combine(vanillapath, contentsfile), [.. vanillafiles]); //relative paths
+                var vanJson = JsonSerializer.Serialize(vanillafiles, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(Path.Combine(vanillapath, contentsfile), vanJson, Encoding.UTF8);
             }
             catch (Exception ex)
             {
@@ -641,9 +712,27 @@ namespace Modmanager_neu
             {
                 IO.ShowMessage("mods.menu.modtovanilla.start");
                 Sonstiges.DebugText($"Lese Datei: {Path.Combine(modpath, contentsfile)}");
-                string[] modfiles = File.ReadAllLines(Path.Combine(modpath, contentsfile)); //relative paths
+                string[] modfiles = [];
+                try
+                {
+                    var txtm = File.ReadAllText(Path.Combine(modpath, contentsfile), Encoding.UTF8);
+                    modfiles = JsonSerializer.Deserialize<string[]>(txtm) ?? [];
+                }
+                catch (Exception ex)
+                {
+                    WriteLogAndExit(10, ex.Message);
+                }
                 Sonstiges.DebugText($"Lese Datei: {Path.Combine(vanillapath, contentsfile)}");
-                string[] vanillafiles = File.ReadAllLines(Path.Combine(vanillapath, contentsfile)); //relative paths
+                string[] vanillafiles = [];
+                try
+                {
+                    var txtv = File.ReadAllText(Path.Combine(vanillapath, contentsfile), Encoding.UTF8);
+                    vanillafiles = JsonSerializer.Deserialize<string[]>(txtv) ?? [];
+                }
+                catch (Exception ex)
+                {
+                    WriteLogAndExit(10, ex.Message);
+                }
                 Sonstiges.Filehelper.Move(gamepath, Path.Combine(modpath, "files"), true, modfiles, true, true);
                 IO.ShowMessage("mods.menu.modtovanilla.moduninstall.done");
                 Sonstiges.Filehelper.Move(Path.Combine(vanillapath, "files"), gamepath, true, vanillafiles, true, true);

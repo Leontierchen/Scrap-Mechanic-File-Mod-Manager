@@ -44,15 +44,40 @@ namespace Modmanager_neu
             var deduplicatedFiles = new List<FileDeduplication>();
             var filesToCopy = new List<string>();
 
-            // Überprüfe jede Datei auf Duplikate
+            // Überprüfe jede Datei auf Duplikate — nur .db Dateien und keine Dateien aus einem Unterordner namens "Backup"
             for (int i = 0; i < savedata.Length; i++)
             {
-                
-                var fileInfo = new FileInfo(savedata[i]);
                 var relPath = Path.GetRelativePath(savegamepath, savedata[i]);
-                
+
+                // Überspringe Dateien, die nicht die Endung .db haben
+                var ext = Path.GetExtension(savedata[i]) ?? string.Empty;
+                if (!string.Equals(ext, ".db", StringComparison.OrdinalIgnoreCase))
+                {
+                    Sonstiges.DebugText($"Skipping non-db file: {relPath}");
+                    continue;
+                }
+
+                // Überspringe Dateien, die sich in einem Ordner namens "Backup" befinden (unabhängig von Groß-/Kleinschreibung)
+                var segments = relPath.Split([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries);
+                bool inBackupFolder = false;
+                foreach (var seg in segments)
+                {
+                    if (string.Equals(seg, "Backup", StringComparison.OrdinalIgnoreCase))
+                    {
+                        inBackupFolder = true;
+                        break;
+                    }
+                }
+                if (inBackupFolder)
+                {
+                    Sonstiges.DebugText($"Skipping file in Backup folder: {relPath}");
+                    continue;
+                }
+
+                var fileInfo = new FileInfo(savedata[i]);
+
                 var duplicate = FindDuplicateInBackups(relPath, fileInfo.Length, fileInfo.LastWriteTime);
-                
+
                 if (duplicate != null)
                 {
                     deduplicatedFiles.Add(new FileDeduplication
@@ -231,15 +256,15 @@ namespace Modmanager_neu
         public static string GetLastBackupName()
         {
             if (!Directory.Exists(savebackupath))
-                return "Kein Backup vorhanden, bitte erstelle eins";
+                return String.Format(Localization.T("backup.no.backups"));
 
             var dirs = Directory.GetDirectories(savebackupath);
             if (dirs.Length == 0)
-                return "Kein Backup vorhanden, bitte erstelle eins";
+                return String.Format(Localization.T("backup.no.backups"));
 
             var sorted = Sonstiges.SortArray(dirs);
             if (sorted == null || sorted.Length == 0)
-                return "Kein Backup vorhanden, bitte erstelle eins";
+                return String.Format(Localization.T("backup.no.backups"));
 
             return Path.GetFileName(sorted[0]);
         }
