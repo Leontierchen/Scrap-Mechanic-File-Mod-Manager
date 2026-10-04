@@ -306,7 +306,7 @@ namespace Modmanager_neu
         internal static void SwitchMod() // menu option
         {
             Sonstiges.DebugText("Starte Wechsel des aktiven Mods...");
-            string? activemod = states.Activemod; //gibt der aktuell aktiven mod zurück, oder "Vanilla" wenn kein mod aktiv ist
+            string? activemod = config.Activemod; //gibt der aktuell aktiven mod zurück, oder "Vanilla" wenn kein mod aktiv ist
             string option = IO.Picker("mods.menu.change.active.mod.prompt", modspath, activemod, true); //gibt der ausgewählten mod zurück
             Sonstiges.DebugText($"Activemod: {activemod} ... Option: {option}");
             if (string.IsNullOrEmpty(option) || option == "exit")
@@ -339,8 +339,8 @@ namespace Modmanager_neu
                     ModToVanilla(activemod!);
                     try
                     {
-                        states.Activemod="Vanilla";
-                        SaveStates(states);
+                        config.Activemod="Vanilla";
+                        SaveConfig(config);
                     }
                     catch (Exception ex)
                     {
@@ -358,8 +358,8 @@ namespace Modmanager_neu
                         ModToVanilla(activemod!);
                         VanillaToMod(option);
                     }
-                    states.Activemod = option;
-                    SaveStates(states);
+                    config.Activemod = option;
+                    SaveConfig(config);
                 }
                 if (config.UseDefaultMods)
                     UnloadDefaultMods();
@@ -369,7 +369,7 @@ namespace Modmanager_neu
         }
         internal static void UpdateMod(string? autoupdatename = null) // menu option
         {
-            string? activemod = states.Activemod;
+            string? activemod = config.Activemod;
             string? option;
             if (autoupdatename == null)
                 option = IO.Picker("mods.menu.update.prompt", modspath, activemod, false, false, true);
@@ -503,7 +503,7 @@ namespace Modmanager_neu
         }
         internal static void RenameMod() // menu option
         {
-            string? activemod = states.Activemod;
+            string? activemod = config.Activemod;
             string option = IO.Picker("mods.menu.rename.mod.prompt", modspath, activemod, false, false, true);
             string? newname = string.Empty;
             if (string.IsNullOrEmpty(option) || option == "exit") //Abfrage, ob gültige Option ausgewählt wurde, oder ob Nutzer zurückgehen wollte
@@ -570,15 +570,15 @@ namespace Modmanager_neu
                 { WriteLogAndExit(11, ex.Message); } //Fehler beim umbenennen des Modordners
                 if (activemod != "Vanilla")
                 {
-                    states.Activemod = newname!;
-                    SaveStates(states);
+                    config.Activemod = newname!;
+                    SaveConfig(config);
                 }
             }
         }
         internal static void RemoveMod() // menu option
         {
             Sonstiges.DebugText("Starte Entfernen eines Mods...");
-            string? activemod = states.Activemod;
+            string? activemod = config.Activemod;
             string option = IO.Picker("mods.menu.remove.mod.prompt", modspath, activemod, false, true, true);
             Sonstiges.DebugText($"Activemod: {activemod} ... Option: {option}");
             if (string.IsNullOrEmpty(option) || option == "exit")
@@ -598,8 +598,8 @@ namespace Modmanager_neu
                         if (activemod != "Vanilla")
                         {
                             ModToVanilla(activemod!); 
-                            states.Activemod = "Vanilla";
-                            SaveStates(states);
+                            config.Activemod = "Vanilla";
+                            SaveConfig(config);
                         }
                         string[] mods = Directory.GetDirectories(modspath);
                         foreach (string mod in mods)
@@ -626,8 +626,8 @@ namespace Modmanager_neu
                         if (IO.YesOrNoPrompt(Localization.T("mods.menu.remove.mod.active.warn")))
                         {
                             ModToVanilla(activemod);
-                            states.Activemod = "Vanilla";
-                            SaveStates(states);
+                            config.Activemod = "Vanilla";
+                            SaveConfig(config);
                         }
                         else
                         {
@@ -888,7 +888,7 @@ namespace Modmanager_neu
         }
         public static void LoadDefaultMods()
         {
-            if (states.Installeddefaultmods)
+            if (config.Installeddefaultmods)
             {
                 Sonstiges.DebugText("Standard Mods wurden bereits installiert, überspringe Installation");
                 return;
@@ -960,8 +960,8 @@ namespace Modmanager_neu
                         combine: true,
                         useProgressbar: true
                         );
-                    states.Installeddefaultmods = true;
-                    SaveStates(states);
+                    config.Installeddefaultmods = true;
+                    SaveConfig(config);
                     IO.ShowMessage("default.mods.installed");
                     return;
                 }
@@ -973,7 +973,7 @@ namespace Modmanager_neu
         }
         public static void UnloadDefaultMods()
         {
-            if (!states.Installeddefaultmods)
+            if (!config.Installeddefaultmods)
             {
                 Sonstiges.DebugText("Standard Mods wurden nicht installiert, überspringe Wiederherstellung");
                 return;
@@ -1008,8 +1008,8 @@ namespace Modmanager_neu
                         useProgressbar: true
                         );
 
-                    states.Installeddefaultmods = false;
-                    SaveStates(states);
+                    config.Installeddefaultmods = false;
+                    SaveConfig(config);
                     IO.ShowMessage("default.mods.restored");
                     return;
                 }

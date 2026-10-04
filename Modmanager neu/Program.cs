@@ -16,9 +16,8 @@ namespace Modmanager_neu
         public static readonly string AppId = "387990"; // Scrap Mechanic
         public static bool IsDebug { get; set; } = true;
         public static bool langfallback = false;
-        // Globale Instanzen für Config und States, damit sie überall im Programm zugänglich sind
+        // Globale Instanzen für Config und config, damit sie überall im Programm zugänglich sind
         public static Config config { get; set; } = null!;
-        public static States states { get; set; } = null!;
 
         // Standardpfade
         public static readonly string logspath = Path.Combine(AppContext.BaseDirectory, "logs");
@@ -42,7 +41,6 @@ namespace Modmanager_neu
             SetConsoleCtrlHandler(_consoleCtrlHandler, true);
 
             config = LoadConfig() ?? new Config();
-            states = LoadStates() ?? new States();
             IsDebug = config.Debug;
             // Ensure console uses UTF-8 so Umlauts (Ä Ö Ü etc.) are displayed correctly
             // Also switch the Windows console code page to UTF-8 (65001) to avoid � characters
@@ -282,69 +280,6 @@ namespace Modmanager_neu
             public bool Debug { get; set; } = false;
             public bool AutoCheckForUpdates { get; set; } = true;
             public bool UseDefaultMods { get; set; } = false;
-        }
-        // ------ States laden/speichern ------
-        public static States? LoadStates()
-        {
-            Console.WriteLine("[Debug] Lade Konfiguration...");
-
-            var possible = GetStatesSearchPaths().Cast<string>().ToArray();
-            Console.WriteLine("[Debug] Suche nach states.json in folgenden Pfaden:");
-            foreach (var p in possible)
-            {
-                Console.WriteLine("[Debug]   " + p);
-            }
-            string? found = possible.FirstOrDefault(File.Exists);
-            Console.WriteLine("[Debug] States gefunden in: " + found);
-            if (found == null) return null;
-
-            try
-            {
-                var json = File.ReadAllText(found);
-                JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };
-                var options = jsonSerializerOptions;
-                var sta = JsonSerializer.Deserialize<States>(json, options);
-
-                return sta;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        // Ermittelt den Pfad zur states.json: existierende Datei falls vorhanden, sonst Standard im BaseDirectory
-        public static string GetStatesFilePath()
-        {
-            var possible = GetStatesSearchPaths().Cast<string>().ToArray();
-            var found = possible.FirstOrDefault(File.Exists);
-            if (!string.IsNullOrEmpty(found)) return found!;
-
-            // Standardpfad neben der EXE
-            return Path.Combine(AppContext.BaseDirectory, "states.json");
-        }
-        private static string[] GetStatesSearchPaths()
-        {
-            return [
-                Path.Combine(AppContext.BaseDirectory, "states.json"),
-                Path.Combine(Directory.GetCurrentDirectory(), "states.json"),
-                Path.Combine(logspath, "states.json"),
-                Path.Combine(languagepath, "states.json"),
-                Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "states.json"),
-            ];
-        }
-        // Speichert die Konfiguration als prettified JSON an dem angegebenen Pfad
-        public static void SaveStates(States sta)
-        {
-            JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = true };
-            var options = jsonSerializerOptions;
-            var json = JsonSerializer.Serialize(sta, options);
-            File.WriteAllText(GetStatesFilePath(), json, Encoding.UTF8);
-        }
-        // kleine poco klasse zum erstellen einer neuen States datei. Hier muss alles angegeben sein, was auch in der States erscheinen soll
-        // in der states werden interne Variablen zwischen programmstarts gespeichert
-        internal class States
-        {
             public string? Activemod { get; set; } = "Vanilla";
             public bool Installeddefaultmods { get; set; } = false;
         }

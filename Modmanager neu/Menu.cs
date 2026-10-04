@@ -184,7 +184,7 @@ internal static class Menu
                     if (sub == "lastbackup")
                         subTextArg2 = [BackupManager.GetLastBackupName()];
                     else if (sub == "currentmod")
-                        subTextArg2 = [states.Activemod!,Convert.ToString(states.Installeddefaultmods)];
+                        subTextArg2 = [config.Activemod!,Convert.ToString(config.Installeddefaultmods)];
                     else if (sub == "currentoutfit")
                         subTextArg2 = [OutfitManager.GetCurrentOutfit()];
                     else if (sub == "defaultmods")

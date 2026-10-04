@@ -119,13 +119,13 @@ namespace Modmanager_neu
             if (config.UseDefaultMods)
             {
                 config.UseDefaultMods = false;
-                if (states.Installeddefaultmods)
+                if (config.Installeddefaultmods)
                     Modtool.UnloadDefaultMods();
             }
             else
             {
                 config.UseDefaultMods = true;
-                if (!states.Installeddefaultmods)
+                if (!config.Installeddefaultmods)
                     Modtool.LoadDefaultMods();
             }
             SaveConfig(config);

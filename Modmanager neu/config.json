@@ -4,5 +4,7 @@
   "GamePath": "",
   "Debug": false,
   "AutoCheckForUpdates": true,
-  "UseDefaultMods": true
+  "UseDefaultMods": false,
+  "Activemod": "Vanilla",
+  "Installeddefaultmods": false
 }
