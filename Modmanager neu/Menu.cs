@@ -29,6 +29,7 @@ internal static class Menu
                 OpenBackupMenu,
                 OpenOutfitMenu,
                 OpenModsMenu,
+                OpenWorkshopCleanerMenu,
                 OpenSettingsMenu,
                 Sonstiges.Contacts,
                 StartGame
@@ -134,7 +135,24 @@ internal static class Menu
                actions:
                [
                    Settings.ToggleDefaultMods,
-                   Modtool.OpenDefaultModsFolder,
+                   Modtool.OpenDefaultModsFolder
+               ]
+           )
+       );
+    }
+    public static void OpenWorkshopCleanerMenu()
+    {
+        PushMenu(() =>
+           ShowMenu(
+               titleKey: "workshop.cache.manager.title",
+               subTextKey: "workshop.cache.manager.description",
+               subTextArg: "",
+               optionsKey:
+               ["workshop.cache.manager.options"],
+               actions:
+               [
+                   () => WorkshopCacheManager.ExecuteMode(1),
+                   () => WorkshopCacheManager.ExecuteMode(2)
                ]
            )
        );
@@ -314,8 +332,10 @@ internal static class Menu
 
     public static void StartGame()
     {
+
+        Sonstiges.DebugText("Spiel starten");
         if (!IsDebug)
-            System.Diagnostics.Process.Start("ScrapMechanicLaunch.bat");
+            Process.Start($"ScrapMechanicLaunch.bat");
         else
             Sonstiges.DebugText("Spiel starten (Debug Mode: Kein tatsächlicher Start)");
         WriteLogAndExit(0); // Beendet das Programm mit einem Rückgabewert von 0 (erfolgreich)

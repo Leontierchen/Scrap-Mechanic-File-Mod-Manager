@@ -3,7 +3,6 @@ using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text;
 using System.Text.Json;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Modmanager_neu
 {
@@ -12,8 +11,9 @@ namespace Modmanager_neu
     {
 
         public static readonly string AppName = "Scrap Mechanic File-Mod Manager";
-        public static readonly string AppVersion = "0.1";
+        public static readonly string AppVersion = "0.2";
         public static readonly string Masterlanguage = "de";
+        public static readonly string AppId = "387990"; // Scrap Mechanic
         public static bool IsDebug { get; set; } = true;
         public static bool langfallback = false;
         // Globale Instanzen für Config und States, damit sie überall im Programm zugänglich sind
@@ -131,6 +131,7 @@ namespace Modmanager_neu
                     10 => string.Format(Localization.T("exit.code.10"), ex), // Write file error
                     11 => string.Format(Localization.T("exit.code.11"), ex), // Rename mod error
                     12 => string.Format(Localization.T("exit.code.12"), ex), // Update Mod error
+                    13 => string.Format(Localization.T("exit.code.13"), ex), // Delete Directory error
 
                     30 => Localization.T("placeholder"), // placeholder for future errors
                     40 => string.Format(Localization.T("placeholder"), ex), // placeholder for future errors with details

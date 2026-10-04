@@ -384,7 +384,7 @@ namespace Modmanager_neu
             if (Directory.Exists(common))
                 list.Add(common);
         }
-        private static string? GetSteamInstallPath()
+        public static string? GetSteamInstallPath()
         {
             string[] registryPaths =
             [

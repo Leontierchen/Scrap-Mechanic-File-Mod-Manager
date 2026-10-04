@@ -13,7 +13,8 @@
   "main.menu.options": [
     "Backup Manager",
     "Charakter Outfit Manager",
-    "Mods verwalten",
+    "File Mod Manager",
+    "Workshop Cache Manager",
     "",
     "Einstellungen",
     "Kontakt",
@@ -192,6 +193,30 @@
   "exit.code.9": "⚠ Fehler beim Extrahieren einer Zip: {0}",
   "exit.code.10": "⚠ Fehler beim Schreiben einer Datei: {0}",
   "exit.code.11": "⚠ Fehler beim umbenennen einer Mod: {0}",
-  "exit.code.12": "⚠ Fehler beim Update einer Mod: {0}"
-}
+  "exit.code.12": "⚠ Fehler beim Update einer Mod: {0}",
+  "exit.code.13": "⚠ Fehler beim löschen eines Verzeichnisses: {0}",
 
+  "workshop.cache.manager.title": "Workshop Cache Manager - Scrap Mechanic",
+  "workshop.cache.manager.description": "Dieses Tool ermöglicht das Löschen des Workshop-Caches für Scrap Mechanic, was diverse probleme mit Mods beheben kann.",
+  "workshop.cache.manager.options": [
+    "Nur Cache löschen (Schließe Spiel, lösche Cache-Ordner in Mods)",
+    "Kompletter Workshop-Wipe (Schließe Steam, neu herunterladen von allen Workshop Inhalten erzwingen, Spiel starten)"
+  ],
+  "workshop.cache.manager.cache.cleared.success": "✅ Cache erfolgreich gelöscht. Das Spiel wird nicht automatisch gestartet.",
+  "workshop.cache.manager.fullwipe.success": "✅ Workshop vollständig gelöscht. Steam und Spiel wurden neugestartet.",
+  "workshop.cache.manager.error": "⚠ Fehler: {0}",
+  "workshop.cache.manager.workshop.not.found": "Workshop-Verzeichnis nicht gefunden.",
+  "workshop.cache.manager.steam.not.found": "❌ Steam nicht gefunden. Bitte überprüfe deine Steam-Installation.",
+  "workshop.cache.manager.vdf.not.found": "❌ Steam-Bibliothekskonfiguration (libraryfolders.vdf) nicht gefunden.",
+  "workshop.cache.manager.closing.game": "[..] Versuche, Scrap Mechanic zu schließen falls geöffnet...",
+  "workshop.cache.manager.game.closed": "✅ Scrap Mechanic geschlossen",
+  "workshop.cache.manager.scanning": "[..] Scanne Workshop-Mods auf Cache-Ordner...",
+  "workshop.cache.manager.deleting.cache": "[..] Lösche Cache-Ordner...",
+  "workshop.cache.manager.cache.cleared": "✅ Cache-Ordner in {0} von {1} Workshop-Mod(s) gelöscht",
+  "workshop.cache.manager.closing.steam": "[..] Fordere Steam auf zu schließen...",
+  "workshop.cache.manager.steam.closed": "[OK]  Steam geschlossen",
+  "workshop.cache.manager.acf.removed": "✅ Workshop ACF gelöscht",
+  "workshop.cache.manager.starting.steam": "[..] Starte Steam-Client...",
+  "workshop.cache.manager.steam.timeout": "❌ Steam konnte sich nicht innerhalb von {0} Sekunden initialisieren. \n[..]Versuche Scrap Mechanic zu starten...",
+  "workshop.cache.manager.steam.ready": "✅ Steam ist bereit und Benutzersitzung ist aktiv"
+}
