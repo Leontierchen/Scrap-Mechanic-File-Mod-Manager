@@ -36,3 +36,6 @@ Compatibility
 
 How to Use:
 Unpack to any destination you want, run the "Modmanager neu.exe" and use the console menus
+If anti virus is behaving like an overcaring mother, create an exeption for the whole folder. The .exe is not lisenced yet. If you know how to do that, reach out to me pls :3
+
+If you want to contact me, reach me on my [Discord](https://discord.gg/sH2h6xWNFd)
