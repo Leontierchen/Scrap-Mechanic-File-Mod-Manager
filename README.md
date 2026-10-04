@@ -1,1 +1,41 @@
-This is the first release of my File-Mod Manager for Scrap Mechanic. It is meant to make installing any file mod as easy and save as possible, because it makes a backup of every file that would get overwritten by manually installing mods. It makes it easy and fast to switch between Vanilla and modded SM, Create Savegame Backups, only backing up all saves the first time, then linking to saves that havent got played in the past, to save memory. It also has a small tool inside to manage different outfits ingame. Lets say you edited your character with shirt, hat and pants etc and want to save that and create a new one. With the tool you can do that. You cant edit the outfit, just see it as a wardrobe for different outfits. 
+This is no longer just a file mod manager, because it does way more. 
+Download the [newes version here](https://github.com/Leontierchen/Scrap-Mechanic-File-Mod-Manager/releases) 
+
+[/b]Features:[/b]
+- Save game backup manager
+  - create backups of your worlds stored in the tools install directory
+  - load backups between game starts
+    
+- Outfit backup manager
+  - save your current outfit to begin using this tool. Outfits will be stored in the games directory
+  - then change your outfit in game
+  - back up that outfit too
+  - now you can quickly change between multiple outfits
+    
+- File Mod manager
+  - add mods to a selection table (directory or zip archive)
+  - merge filemods (no code merger, only file system merge with overwrite in added source order)
+  - create sub folders for better compatibillity (rare cases)
+  - auto update check when activating a mod (checking changes in the mod source like workshop file mods)
+  - default mods (mods that will be always active, parallel to normal file mods. use this for all mods that work in multiplayer)
+  - quickly activate, deactivate and switch between vanilla and file mods without moving any file by hand.
+    
+- Workshop Cache Cleaner (can resolve most common issues with mods since the scrap Mechanic 1.0 update
+  - Clean the Cache of workshop mods only
+  - Full Wipe the downloaded files of all subscribed mods and creations
+   
+- Languages:
+  - English
+  - German
+  - Russian
+  - Ukrain
+
+Compatibility
+- Windows only
+- net framework 10.0
+
+How to Use:
+Unpack to any destination you want, run the "Modmanager neu.exe" and use the console menus
+
+What does it do on startup?
+It will place a folder called "Mod_manager_by_leon" where the mods 
