@@ -88,7 +88,14 @@ namespace Modmanager_neu
             Localization.Init(config.Language ?? Masterlanguage);
             SaveConfig(config);
 
-            if (config.AutoCheckForUpdates && !string.IsNullOrWhiteSpace(config.Activemod) && !string.Equals(config.Activemod, "Vanilla", StringComparison.OrdinalIgnoreCase))
+            // App-Update auf GitHub prüfen (mit Ja/Nein-Abfrage)
+            if (config.AutoCheckForUpdates)
+            {
+                GitHubUpdater.CheckForApplicationUpdateAsync().GetAwaiter().GetResult();
+            }
+
+
+                if (config.AutoCheckForUpdates && !string.IsNullOrWhiteSpace(config.Activemod) && !string.Equals(config.Activemod, "Vanilla", StringComparison.OrdinalIgnoreCase))
             {
                 Sonstiges.DebugText("Auto-Update Check beim Programmstart für aktive Mod: " + config.Activemod);
                 try
@@ -287,7 +294,7 @@ namespace Modmanager_neu
         
         internal class Config
         {
-            public string? Language { get; set; } = "de"; // default deutsch
+            public string? Language { get; set; } = "en"; // default english
             public string? SteamID { get; set; } = "User_xxxxxxxxxxxxxx";
             public string? GamePath { get; set; } = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Scrap Mechanic";
             public bool Debug { get; set; } = false;

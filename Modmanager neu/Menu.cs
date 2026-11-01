@@ -118,11 +118,15 @@ internal static class Menu
                    Settings.LanguageSelection,
                    Settings.ToggleAutoCheckUpdates,
                    OpenDefaultModsMenu,
-                   Settings.Toggledebug
+                   Settings.Toggledebug,
+                   Settings.CheckForUpdatesManual
                ]
            )
        );
     }
+    // -------------------------
+    // DEFAULT MODS MENU
+    // -------------------------
     public static void OpenDefaultModsMenu()
     {
         PushMenu(() =>
@@ -140,6 +144,9 @@ internal static class Menu
            )
        );
     }
+    // -------------------------
+    // WORKSHOP CACHE CLEANER MENU
+    // -------------------------
     public static void OpenWorkshopCleanerMenu()
     {
         PushMenu(() =>
@@ -229,6 +236,7 @@ internal static class Menu
                                 case 1: arg = Convert.ToString(config.AutoCheckForUpdates); break;
                                 case 2: arg = Convert.ToString(config.UseDefaultMods); break;
                                 case 3: arg = Convert.ToString(config.Debug); break;
+                                case 4: arg = Convert.ToString(Program.AppVersion); break;
                             }
                         }
                         else

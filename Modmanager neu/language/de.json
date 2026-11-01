@@ -161,7 +161,8 @@
     "🌐 Sprache ändern: \"{0}\"",
     "Automatische Update-Prüfung: \"{0}\"",
     "Default Mods: \"{0}\"",
-    "Debug: \"{0}\""
+    "Debug: \"{0}\"",
+    "App-Update manuell prüfen. Aktuelle Version: {0}"
   ],
   "settings.language.select": "--- Sprache auswählen ---",
   "settings.language.changed": "Sprache geändert zu: {0}",
@@ -218,5 +219,14 @@
   "workshop.cache.manager.acf.removed": "✅ Workshop ACF gelöscht",
   "workshop.cache.manager.starting.steam": "[..] Starte Steam-Client...",
   "workshop.cache.manager.steam.timeout": "❌ Steam konnte sich nicht innerhalb von {0} Sekunden initialisieren. \n[..]Versuche Scrap Mechanic zu starten...",
-  "workshop.cache.manager.steam.ready": "✅ Steam ist bereit und Benutzersitzung ist aktiv"
+  "workshop.cache.manager.steam.ready": "✅ Steam ist bereit und Benutzersitzung ist aktiv",
+
+  "github.updater.checking": "Prüfe auf Updates...",
+  "github.updater.no.update": "✅ Keine Updates verfügbar. Aktuelle Version: {0}",
+  "github.updater.update.available": "Es ist ein Update verfügbar! Aktuelle Version: {0}, Neue Version: {1}\nWillst du es jetzt installieren?",
+  "github.updater.update.downloading": "Update wird heruntergeladen...",
+  "github.updater.update.extracting": "✅ Update heruntergeladen. Entpacke Dateien...",
+  "github.updater.update.starting": "Programm wird neu gestartet...",
+  "github.updater.download.error": "❌ Fehler beim Herunterladen des Updates. Bitte überprüfe deine Internetverbindung und versuche es erneut.",
+  "github.updater.checking.nointernet": "❌ Keine interbetverbindung."
 }

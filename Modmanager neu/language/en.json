@@ -218,5 +218,14 @@
   "workshop.cache.manager.acf.removed": "✅ Workshop ACF deleted",
   "workshop.cache.manager.starting.steam": "[..] Starting Steam client...",
   "workshop.cache.manager.steam.timeout": "❌ Steam could not initialize within {0} seconds. \n[..]Attempting to start Scrap Mechanic...",
-  "workshop.cache.manager.steam.ready": "✅ Steam is ready and user session is active"
+  "workshop.cache.manager.steam.ready": "✅ Steam is ready and user session is active",
+
+  "github.updater.checking": "Checking for updates...",
+  "github.updater.no.update": "✅ No updates available. Current version: {0}",
+  "github.updater.update.available": "An update is available! Current version: {0}, New version: {1}\nDo you want to install it now?",
+  "github.updater.update.downloading": "Downloading update...",
+  "github.updater.update.extracting": "✅ Update downloaded. Extracting files...",
+  "github.updater.update.starting": "Restarting program...",
+  "github.updater.download.error": "❌ Error downloading the update. Please check your internet connection and try again.",
+  "github.updater.checking.nointernet": "❌ No internet connection."
 }

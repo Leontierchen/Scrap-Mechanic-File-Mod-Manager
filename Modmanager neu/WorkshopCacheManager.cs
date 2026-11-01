@@ -264,21 +264,19 @@ namespace Modmanager_neu
             {
                 try
                 {
-                    using (RegistryKey ?key = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Steam\ActiveProcess"))
+                    using RegistryKey? key = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Steam\ActiveProcess");
+                    if (key != null)
                     {
-                        if (key != null)
-                        {
-                            var activeUser = key.GetValue("ActiveUser");
-                            var pid = key.GetValue("pid");
+                        var activeUser = key.GetValue("ActiveUser");
+                        var pid = key.GetValue("pid");
 
-                            if (activeUser != null && pid != null && 
-                                (int)activeUser > 0 && (int)pid > 0)
+                        if (activeUser != null && pid != null &&
+                            (int)activeUser > 0 && (int)pid > 0)
+                        {
+                            if (Process.GetProcessById((int)pid) != null)
                             {
-                                if (Process.GetProcessById((int)pid) != null)
-                                {
-                                    isReady = true;
-                                    break;
-                                }
+                                isReady = true;
+                                break;
                             }
                         }
                     }

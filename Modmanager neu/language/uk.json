@@ -214,5 +214,14 @@
   "workshop.cache.manager.acf.removed": "✅ Workshop ACF видалений",
   "workshop.cache.manager.starting.steam": "[..] Запуск клієнта Steam...",
   "workshop.cache.manager.steam.timeout": "❌ Steam не зміг ініціалізуватися протягом {0} секунд. \n[..] Спроба запуску Scrap Mechanic...",
-  "workshop.cache.manager.steam.ready": "✅ Steam готовий і користувальницький сеанс активний"
+  "workshop.cache.manager.steam.ready": "✅ Steam готовий і користувальницький сеанс активний",
+
+  "github.updater.checking": "Перевірка наявності оновлень...",
+  "github.updater.no.update": "✅ Оновлень немає. Поточна версія: {0}",
+  "github.updater.update.available": "Доступне оновлення! Поточна версія: {0}, Нова версія: {1}\nБажаєте встановити її зараз?",
+  "github.updater.update.downloading": "Завантаження оновлення...",
+  "github.updater.update.extracting": "✅ Оновлення завантажено. Розпакування файлів...",
+  "github.updater.update.starting": "Перезапуск програми...",
+  "github.updater.download.error": "❌ Помилка завантаження оновлення. Будь ласка, перевірте ваше інтернет-з'єднання та спробуйте ще раз.",
+  "github.updater.checking.nointernet": "❌ Відсутнє інтернет-з'єднання."
 }

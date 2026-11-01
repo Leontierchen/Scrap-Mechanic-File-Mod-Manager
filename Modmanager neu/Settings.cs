@@ -131,5 +131,19 @@ namespace Modmanager_neu
             SaveConfig(config);
             IO.WaitForKeypress();
         }
+
+        public static void CheckForUpdatesManual()
+        {
+            Console.Clear();
+            Console.WriteLine("Prüfe auf App-Updates...\n");
+            string updateResult = GitHubUpdater.CheckForApplicationUpdateAsync().GetAwaiter().GetResult();
+            if (updateResult == "false")
+            {
+                IO.ShowMessage("github.updater.no.update", [Program.AppVersion]);
+                IO.WaitForKeypress();
+            }
+            if (updateResult == "error no internet")
+                IO.WaitForKeypress();
+        }
     }
 }
