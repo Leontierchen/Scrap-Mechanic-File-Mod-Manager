@@ -67,7 +67,7 @@ namespace Modmanager_neu
             Sonstiges.DebugText("----------- start config -----------");
             if (config != null)
             {
-                Console.WriteLine("[Debug] Geladene Konfiguration:");
+                Console.WriteLine("[Debug] Geladene Konfiguration: " + GetConfigFilePath());
                 foreach (var prop in typeof(Config).GetProperties(BindingFlags.Public | BindingFlags.Instance))
                 {
                     var value = prop.GetValue(config);
@@ -273,8 +273,7 @@ namespace Modmanager_neu
                 Path.Combine(AppContext.BaseDirectory, "config.json"),
                 Path.Combine(Directory.GetCurrentDirectory(), "config.json"),
                 Path.Combine(logspath, "config.json"),
-                Path.Combine(languagepath, "config.json"),
-                Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "config.json"),
+                Path.Combine(languagepath, "config.json")
             ];
         }
         // Speichert die Konfiguration als prettified JSON an dem angegebenen Pfad

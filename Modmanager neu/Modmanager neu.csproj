@@ -10,13 +10,6 @@
 		<UseWindowsForms>true</UseWindowsForms>
 	</PropertyGroup>
 
-	<!-- Config -->
-	<ItemGroup>
-		<None Include="config.json">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
-
 	<!-- Batch file -->
 	<ItemGroup>
 		<None Include="ScrapMechanicLaunch.bat">
