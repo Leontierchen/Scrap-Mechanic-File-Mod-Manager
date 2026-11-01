@@ -11,7 +11,7 @@ namespace Modmanager_neu
     {
 
         public static readonly string AppName = "Scrap Mechanic File-Mod Manager";
-        public static readonly string AppVersion = "0.2";
+        public static readonly string AppVersion = "0.3";
         public static readonly string Masterlanguage = "de";
         public static readonly string AppId = "387990"; // Scrap Mechanic
         public static bool IsDebug { get; set; } = true;
@@ -87,6 +87,20 @@ namespace Modmanager_neu
             }
             Localization.Init(config.Language ?? Masterlanguage);
             SaveConfig(config);
+
+            if (config.AutoCheckForUpdates && !string.IsNullOrWhiteSpace(config.Activemod) && !string.Equals(config.Activemod, "Vanilla", StringComparison.OrdinalIgnoreCase))
+            {
+                Sonstiges.DebugText("Auto-Update Check beim Programmstart für aktive Mod: " + config.Activemod);
+                try
+                {
+                    Modtool.CheckAndOfferUpdate(config.Activemod);
+                }
+                catch (Exception ex)
+                {
+                    Sonstiges.DebugText("Auto-Update beim Programmstart fehlgeschlagen: " + ex.Message);
+                }
+            }
+
             // ----------- ende config -----------
             // ----------- start main -----------
             if (IsDebug)

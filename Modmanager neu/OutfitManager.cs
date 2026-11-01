@@ -101,7 +101,7 @@ namespace Modmanager_neu
             string outfitToLoad = IO.Picker("outfit.manager.load.prompt", outfitpath, currentOutfit);
             if (string.IsNullOrEmpty(outfitToLoad) || outfitToLoad == "exit")
                 return;
-            else if (outfitToLoad == "no enries")
+            else if (outfitToLoad == "no entries")
                 IO.ShowMessage("outfit.manager.no.outfits");
             else
             {                 
@@ -132,7 +132,7 @@ namespace Modmanager_neu
             string outfitTodelete = IO.Picker("outfit.manager.delete.prompt", outfitpath,allowsame: true);
             if (string.IsNullOrEmpty(outfitTodelete) || outfitTodelete == "exit")
                 return;
-            else if (outfitTodelete == "no enries")
+            else if (outfitTodelete == "no entries")
                 IO.ShowMessage("outfit.manager.no.outfits");
             else
             {

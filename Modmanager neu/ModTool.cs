@@ -19,9 +19,50 @@ namespace Modmanager_neu
         // contents.json enthält die Liste der relativen Dateien/Ordner, die tatsächlich in den Mod einbezogen wurden.
         public static readonly string contentsfile = "contents.json";
         public static readonly string modlistsfile = "modlist.txt"; //enthält die Originalpfade der Dateien/Ordner, die in den Mod einbezogen wurden, um Updates zu ermöglichen
+        public static readonly string subfoldersfile = "subfolders.txt"; //enthält die Zuordnung Originalpfad -> Unterordner, damit Updates die Auswahl erhalten
         public static readonly string sourcesigfile = "sourcesig.txt"; //enthält die Signaturen der Originalquellen, um Änderungen zu erkennen
 
         public static readonly string defaultmodspath = Path.Combine(gamepath, modtool, "default_mods");
+
+        private static Dictionary<string, string?> LoadSubfolderMap(string modFolderPath)
+        {
+            Dictionary<string, string?> result = new(StringComparer.OrdinalIgnoreCase);
+            string mapFile = Path.Combine(modFolderPath, subfoldersfile);
+            if (!File.Exists(mapFile))
+                return result;
+
+            foreach (string line in File.ReadAllLines(mapFile))
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                int separatorIndex = line.IndexOf('|');
+                if (separatorIndex <= 0)
+                    continue;
+
+                string source = line[..separatorIndex];
+                string subfolder = line[(separatorIndex + 1)..];
+                result[source] = string.IsNullOrWhiteSpace(subfolder) ? null : subfolder;
+            }
+
+            return result;
+        }
+
+        private static void SaveSubfolderMap(string modFolderPath, Dictionary<string, string?> pathSubfolders)
+        {
+            string mapFile = Path.Combine(modFolderPath, subfoldersfile);
+            List<string> lines = [];
+
+            foreach (var entry in pathSubfolders)
+            {
+                if (string.IsNullOrWhiteSpace(entry.Key))
+                    continue;
+
+                lines.Add($"{entry.Key}|{(string.IsNullOrWhiteSpace(entry.Value) ? string.Empty : entry.Value)}");
+            }
+
+            File.WriteAllLines(mapFile, [.. lines]);
+        }
         
         public static string GetGamePath()
         {
@@ -79,7 +120,7 @@ namespace Modmanager_neu
             SaveConfig(config);
             return gamepath;
         }
-        internal static void AddMod(bool update = false, string updatename = "", string[]? updatepaths = null) // menu option
+        internal static void AddMod(bool update = false, string updatename = "", string[]? updatepaths = null, Dictionary<string, string?>? existingSubfolders = null) // menu option
         {
             Sonstiges.DebugText("Starte hinzufügen einer neuen Mod...");
             string? modname = string.Empty;
@@ -222,7 +263,14 @@ namespace Modmanager_neu
             }
             else
             {
-                foreach (var src in modslist) pathSubfolders[src] = null;
+                Dictionary<string, string?> savedMap = existingSubfolders ?? LoadSubfolderMap(Path.Combine(modspath, modname ?? string.Empty));
+                foreach (var src in modslist)
+                {
+                    if (savedMap.TryGetValue(src, out var savedSubfolder))
+                        pathSubfolders[src] = savedSubfolder;
+                    else
+                        pathSubfolders[src] = null;
+                }
             }
 
             foreach (string item in modslist)
@@ -252,6 +300,7 @@ namespace Modmanager_neu
             }
             //document all mods and files into text files inside the mod folder
             File.WriteAllLines(Path.Combine(modnamepath, modlistsfile), [.. modslist]);
+            SaveSubfolderMap(modnamepath, pathSubfolders);
 
             // New: create source signatures for all entries in modslist
             try
@@ -289,7 +338,9 @@ namespace Modmanager_neu
             // Speichere contents als JSON (Array von relativen Pfaden)
             try
             {
-                var contentsJson = JsonSerializer.Serialize(files, new JsonSerializerOptions { WriteIndented = true });
+                JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = true };
+                JsonSerializerOptions options = jsonSerializerOptions;
+                var contentsJson = JsonSerializer.Serialize(files, options);
                 File.WriteAllText(Path.Combine(modnamepath, contentsfile), contentsJson, Encoding.UTF8);
             }
             catch (Exception ex)
@@ -351,12 +402,12 @@ namespace Modmanager_neu
                 {
                     if (activemod == "Vanilla")
                     {
-                        VanillaToMod(option);
+                        VanillaToMod(option, GetOptions());
                     }
                     else
                     {
                         ModToVanilla(activemod!);
-                        VanillaToMod(option);
+                        VanillaToMod(option, GetOptions());
                     }
                     config.Activemod = option;
                     SaveConfig(config);
@@ -484,12 +535,14 @@ namespace Modmanager_neu
                             ModToVanilla(option);
                             IO.ShowMessage("mods.menu.update.recover.vanilla.done");
                         }
-                        Sonstiges.Filehelper.DeleteDirectory(Path.Combine(modspath, option), true); // altes Modverzeichnis löschen
-                        AddMod(true, option, [.. updatepaths]); //neuen Mod mit den aktualisierten Pfaden hinzufügen, dabei wird der alte Modname und die neuen Pfade übergeben. Clean install
+                        string oldModPath = Path.Combine(modspath, option);
+                        Dictionary<string, string?> savedSubfolders = LoadSubfolderMap(oldModPath);
+                        Sonstiges.Filehelper.DeleteDirectory(oldModPath, true); // altes Modverzeichnis löschen
+                        AddMod(true, option, [.. updatepaths], savedSubfolders); //neuen Mod mit den aktualisierten Pfaden hinzufügen, dabei wird der alte Modname und die neuen Pfade übergeben. Clean install
                         if (option == activemod) //wenn der zu aktualisierende Mod an ist, wird er nach dem Update wieder aktiviert
                         {
                             IO.ShowMessage("mods.menu.update.reactivate.mod");
-                            VanillaToMod(option);
+                            VanillaToMod(option, GetOptions());
                             IO.ShowMessage("mods.menu.update.reactivate.mod.done");
                         }
 
@@ -644,7 +697,13 @@ namespace Modmanager_neu
                 }
             }
         }
-        static void VanillaToMod(string modname)
+
+        private static JsonSerializerOptions GetOptions()
+        {
+            return new() { WriteIndented = true };
+        }
+
+        static void VanillaToMod(string modname, JsonSerializerOptions options)
         {
 
             Sonstiges.DebugText($"Vanilla To Mod. Modname: {modname}");
@@ -678,7 +737,7 @@ namespace Modmanager_neu
             Sonstiges.DebugText($"Schreibe Datei: {Path.Combine(vanillapath, contentsfile)}");
             try
             {
-                var vanJson = JsonSerializer.Serialize(vanillafiles, new JsonSerializerOptions { WriteIndented = true });
+                var vanJson = JsonSerializer.Serialize(vanillafiles, options);
                 File.WriteAllText(Path.Combine(vanillapath, contentsfile), vanJson, Encoding.UTF8);
             }
             catch (Exception ex)
@@ -744,7 +803,7 @@ namespace Modmanager_neu
             using var sha = SHA256.Create();
             using var stream = File.OpenRead(path);
             var hash = sha.ComputeHash(stream);
-            return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+            return Convert.ToHexStringLower(hash);
         }
         static string ComputeDirectoryHash(string dir)
         {
@@ -768,9 +827,9 @@ namespace Modmanager_neu
             }
             // finalize
             sha.TransformFinalBlock([], 0, 0);
-            return BitConverter.ToString(sha.Hash!).Replace("-", "").ToLowerInvariant();
+            return Convert.ToHexStringLower(sha.Hash ?? []);
         }
-        static void CheckAndOfferUpdate(string modname)
+        internal static void CheckAndOfferUpdate(string modname)
         {
             string modpath = Path.Combine(modspath, modname);
             string sigpath = Path.Combine(modpath, sourcesigfile);
@@ -909,7 +968,7 @@ namespace Modmanager_neu
                 try
                 {
                     //lese alle dateien in default_mods
-                    string[] files = Directory.GetFiles(modspath, ".", SearchOption.AllDirectories);
+                    string[] files = Directory.GetFiles(modspath, "*.*", SearchOption.AllDirectories);
                     if (files.Length == 0)
                     {
 
